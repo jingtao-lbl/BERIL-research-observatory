@@ -24,7 +24,7 @@ print(f"Loaded {len(df)} species")
 
 nutrient_gene_sets = {
     'P_genes': ['phoA', 'phoD_pfam', 'pstA', 'pstB', 'pstC', 'pstS', 'phnC', 'phnD', 'phnE'],
-    'N_genes': ['nifH', 'nifD', 'nifH_pfam'],
+    'N_genes': ['nifH', 'nifD'],
     'Phz_genes': ['phzF', 'phzA', 'phzB', 'phzD', 'phzG', 'phzS', 'phzM'],
 }
 

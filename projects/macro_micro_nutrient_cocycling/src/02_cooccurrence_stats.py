@@ -25,9 +25,13 @@ print(f"Loaded {len(df)} species, {len(df.columns)} columns")
 
 groups = {
     'P_acquisition': ['phoA', 'phoD_pfam', 'pstA', 'pstB', 'pstC', 'pstS', 'phnC', 'phnD', 'phnE'],
-    'N_fixation': ['nifH', 'nifD', 'nifH_pfam'],
+    'N_fixation': ['nifH', 'nifD'],
     'Metal_handling': ['copA', 'corA', 'feoB_pfam', 'HMA_pfam'],
     'Phenazine': ['phzF', 'phzA', 'phzB', 'phzD', 'phzG', 'phzS', 'phzM'],
+}
+
+sensitivity_groups = {
+    'N_fixation_broad': ['nifH', 'nifD', 'nifH_pfam'],
 }
 
 group_has = {}
@@ -37,6 +41,10 @@ for gname, genes in groups.items():
 
 phz_operon = df['has_phz_operon'].values if 'has_phz_operon' in df.columns else (group_has['Phenazine'] >= 1)
 group_has['Phenazine_operon'] = phz_operon
+
+for gname, genes in sensitivity_groups.items():
+    cols = [f'has_{g}' for g in genes if f'has_{g}' in df.columns]
+    group_has[gname] = (df[cols].sum(axis=1) >= 1).astype(int).values
 
 
 def jaccard(a, b):
@@ -196,8 +204,26 @@ for ng in nutrient_genes:
         })
 
 detail_df = pd.DataFrame(detail_rows)
+
+from scipy.stats import false_discovery_control
+p_values = detail_df['fisher_p'].values
+rejected = false_discovery_control(p_values, method='bh')
+n_tests = len(p_values)
+sorted_idx = np.argsort(p_values)
+q_values = np.empty(n_tests)
+for rank, idx in enumerate(sorted_idx, 1):
+    q_values[idx] = p_values[idx] * n_tests / rank
+for i in range(n_tests - 2, -1, -1):
+    idx = sorted_idx[i]
+    idx_next = sorted_idx[i + 1]
+    q_values[idx] = min(q_values[idx], q_values[idx_next])
+q_values = np.clip(q_values, 0, 1)
+detail_df['q_value'] = q_values
+detail_df['fdr_significant'] = (q_values < 0.05).astype(int)
+
 detail_df.to_csv(os.path.join(DATA_DIR, 'pairwise_detail.csv'), index=False)
 print(f"Saved pairwise_detail.csv ({len(detail_df)} pairs)")
+print(f"FDR-significant pairs (q<0.05): {detail_df['fdr_significant'].sum()} / {len(detail_df)}")
 
 print("\nTop 10 enrichments (nutrient x metal):")
 detail_sorted = detail_df.sort_values('enrichment', ascending=False)
@@ -212,3 +238,15 @@ for _, row in detail_neg.head(5).iterrows():
     print(f"  {row['nutrient_gene']:>10s} x {row['metal_gene']:<10s}: "
           f"enrichment={row['enrichment']:.2f}x  phi={row['phi']:.4f}  "
           f"n_both={row['n_both']}  p={row['fisher_p']:.2e}")
+
+print("\n=== Sensitivity Check: N-fixation with PF00142 (broad Fer4 domain) ===\n")
+a_broad = group_has['N_fixation_broad']
+a_strict = group_has['N_fixation']
+b_metal = group_has['Metal_handling']
+print(f"N-fixation (KO-only, nifH+nifD): {int(np.sum(a_strict))} species")
+print(f"N-fixation (broad, +PF00142):     {int(np.sum(a_broad))} species")
+print(f"Difference:                        {int(np.sum(a_broad)) - int(np.sum(a_strict))} species added by PF00142")
+phi_strict = phi_coefficient(a_strict, b_metal)
+phi_broad = phi_coefficient(a_broad, b_metal)
+print(f"N x Metal phi (KO-only):  {phi_strict:.4f}")
+print(f"N x Metal phi (broad):    {phi_broad:.4f}")

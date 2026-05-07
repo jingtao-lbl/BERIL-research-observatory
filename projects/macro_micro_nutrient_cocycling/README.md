@@ -6,7 +6,7 @@ Do bacterial pangenomes encoding macro-nutrient acquisition (P, N) and phenazine
 
 ## Status
 
-**Analysis complete** — Substrate A (pangenome co-occurrence) executed across all four analysis steps. Substrates B (ecological co-occurrence) and C (gene-fitness correlation) are named future directions.
+Completed — Significant co-occurrence of macro-nutrient acquisition and metal-handling genes across 27,682 bacterial pangenomes, with all 63 phenazine operon carriers encoding both P-acquisition and metal-handling genes.
 
 ## Overview
 
