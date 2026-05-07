@@ -26,6 +26,7 @@ targets = {
     'Bradyrhizobium diazoefficiens': 'Bradyrhizobium_diazoefficiens',
     'Sinorhizobium meliloti': 'Sinorhizobium_meliloti',
     'Mesorhizobium loti': 'Mesorhizobium_loti',
+    'Streptomyces coelicolor': 'Streptomyces_anthocyanicus',
     'Methylobacterium extorquens': 'Methylobacterium_extorquens',
     'Pseudomonas chlororaphis': 'Pseudomonas_E_chlororaphis',
 }
@@ -111,4 +112,4 @@ for common_name, row in representative.items():
 out_df = pd.DataFrame(out_rows)
 out_df.to_csv(os.path.join(DATA_DIR, 'positive_controls.csv'), index=False)
 print(f"\nSaved positive_controls.csv ({len(out_df)} representative species)")
-print("\nNote: Streptomyces coelicolor A3(2) is absent from GTDB R214 pangenome data.")
+print("\nNote: S. coelicolor A3(2) is reclassified as s__Streptomyces_anthocyanicus in GTDB R214 (GCF_008931305.1).")

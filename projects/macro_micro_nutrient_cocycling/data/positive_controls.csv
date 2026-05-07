@@ -4,5 +4,6 @@ Pseudomonas protegens,s__Pseudomonas_E_protegens,s__Pseudomonas_E_protegens--RS_
 Bradyrhizobium diazoefficiens,s__Bradyrhizobium_diazoefficiens,s__Bradyrhizobium_diazoefficiens--RS_GCF_000011365.1,32,"pstA, pstB, pstC, pstS, phnC, phnD, phnE",1,"nifH, nifD",1,"copA, corA",1,"phzF, phzS",1,2,0
 Sinorhizobium meliloti,s__Sinorhizobium_meliloti,s__Sinorhizobium_meliloti--RS_GCF_017876815.1,241,"phoD_pfam, pstA, pstB, pstC, pstS, phnC, phnD, phnE",1,"nifH, nifD",1,"copA, corA, feoB_pfam, HMA_pfam",1,phzF,1,1,0
 Mesorhizobium loti,s__Mesorhizobium_loti,s__Mesorhizobium_loti--RS_GCF_003148495.1,4,"pstA, pstB, pstC, pstS, phnC, phnD, phnE",1,nifD,1,"copA, corA, HMA_pfam",1,phzF,1,1,0
+Streptomyces coelicolor,s__Streptomyces_anthocyanicus,s__Streptomyces_anthocyanicus--RS_GCF_014651155.1,26,"phoD_pfam, pstA, pstB, pstC, pstS",1,none,0,"copA, corA",1,phzF,1,1,0
 Methylobacterium extorquens,s__Methylobacterium_extorquens,s__Methylobacterium_extorquens--RS_GCF_900234795.1,22,"phoA, pstA, pstB, pstC, pstS, phnC, phnD, phnE",1,none,0,"copA, corA",1,phzF,1,1,0
 Pseudomonas chlororaphis,s__Pseudomonas_E_chlororaphis,s__Pseudomonas_E_chlororaphis--RS_GCF_003945765.1,36,"phoA, pstA, pstB, pstS",1,none,0,"copA, corA",1,"phzF, phzA, phzB, phzG",1,4,1

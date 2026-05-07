@@ -126,17 +126,20 @@ Looked up 8 well-characterized model organisms in GTDB R214. Streptomyces coelic
 | *B. diazoefficiens* | pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA | phzF, phzS |
 | *S. meliloti* | phoD, pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA, feoB, HMA | phzF |
 | *M. loti* | pstA/B/C/S, phnC/D/E | nifD | copA, corA, HMA | phzF |
+| *S. coelicolor* | phoD, pstA/B/C/S | — | copA, corA | phzF |
 | *M. extorquens* | phoA, pstA/B/C/S, phnC/D/E | — | copA, corA | phzF |
 | *P. chlororaphis* | phoA, pstA/B/S | — | copA, corA | phzA/B/F/G (operon) |
 
 **Key observations:**
-- All 7 encode both P-acquisition and metal-handling — consistent with genome-wide signal
+- All 8 encode both P-acquisition and metal-handling — consistent with genome-wide signal
 - Two known diazotrophs (B. diazoefficiens, S. meliloti) carry nifH+nifD as expected
 - S. meliloti has broadest repertoire: all 4 metal families + 8/9 P families
 - P. chlororaphis is only positive control with complete phenazine operon (phzA/B/F/G)
 - GTDB uses reclassified genus Pseudomonas_E for fluorescens/protegens/chlororaphis
+- S. coelicolor A3(2) is reclassified as s__Streptomyces_anthocyanicus in GTDB R214 (confirmed via GCF_008931305.1 in genome table)
+- S. coelicolor carries only phzF (no operon) despite being a known phenazine producer — other phz genes may use different Bakta annotations
 
-**Pitfall discovered:** Initial query used `LIKE '%coelicolor%'` which matched Cephaloticoccus (contains 'coccus' substring) instead of S. coelicolor. Fixed by using precise GTDB species prefixes (`LIKE 's__Streptomyces%coelicolor%'`), which returned no hits — confirming S. coelicolor is absent from GTDB R214 pangenome.
+**Pitfall discovered:** Initial query used `LIKE '%coelicolor%'` which matched Cephaloticoccus (contains 'coccus' substring) instead of S. coelicolor. Fixed by using precise GTDB species prefixes. The species name `coelicolor` does not exist in GTDB R214 — it was reclassified as `anthocyanicus`. Found by searching `gtdb_metadata` for the newer RefSeq accession `RS_GCF_008931305.1`, which mapped to `s__Streptomyces_anthocyanicus`.
 
 ### Enrichment 2: Environmental Stratification (`src/07_environmental_stratification.py`)
 
@@ -207,7 +210,7 @@ Computed log-odds ratios with 95% CIs (Haldane-corrected for zero cells) for P×
    - 5.2 Individual gene pair highlights (FDR-corrected)
    - 5.3 Core vs. accessory structure (three signatures)
    - 5.4 Phylogenetic distribution (phylum, class, family, phenazine taxonomy)
-   - 5.5 Positive-control species check (7 model organisms)
+   - 5.5 Positive-control species check (8 model organisms)
    - 5.6 Environmental stratification (6 broad environments)
    - 5.7 Per-phylum forest plot (Figure 2)
 6. Interpretation
@@ -235,7 +238,7 @@ All in `projects/macro_micro_nutrient_cocycling/data/` (gitignored — must use 
 | phylum_cooccurrence.csv | 34+ | Phylum-level co-occurrence stats |
 | class_cooccurrence.csv | varies | Class-level co-occurrence stats |
 | phenazine_operon_taxonomy.csv | 63 | Phz operon carriers with full taxonomy |
-| positive_controls.csv | 7 | Model organism gene family profiles |
+| positive_controls.csv | 8 | Model organism gene family profiles |
 | env_species_mapping.csv | 27,017 | Species → primary environment assignment |
 | env_cooccurrence.csv | 21 | Co-occurrence stats by environment |
 | forest_plot_data.csv | 102 | Per-phylum log-OR with CIs for 3 pairs |
@@ -254,7 +257,7 @@ All in `projects/macro_micro_nutrient_cocycling/data/` (gitignored — must use 
 3. **PF00142 captures Fer4 superfamily:** Using it as N-fixation proxy inflates species 114% and inverts Stouffer Z. Use KO K02588 (nifH) + K02586 (nifD) only.
 4. **ncbi_env is key-value, not columnar:** Filter on `harmonized_name IN ('isolation_source', 'env_broad_scale', 'host')`. Many entries contain 'missing', 'not collected', 'not applicable' — must filter.
 5. **ncbi_env → species join path:** `ncbi_env.accession = genome.ncbi_biosample_id` → `genome.gtdb_species_clade_id`.
-6. **S. coelicolor absent from GTDB R214:** Not found by species name, accession (GCF_000203835), or synonyms (S. violaceoruber, S. lividans).
+6. **S. coelicolor reclassified in GTDB R214:** Not found under its NCBI name. Reclassified as `s__Streptomyces_anthocyanicus`. Found by searching `gtdb_metadata` for the newer RefSeq accession `RS_GCF_008931305.1`. The older accession `GCF_000203835` is not in the dataset at all.
 7. **CSVs gitignored:** `.gitignore` rule `projects/*/data/**/*.csv` blocks them. Must use `git add -f`.
 8. **NB04 exec() path issue:** `os.path.dirname(__file__)` breaks in notebook context. Must replace with relative paths.
 9. **GTDB reclassifications:** Pseudomonas fluorescens/protegens/chlororaphis are in genus Pseudomonas_E in GTDB R214. Search queries must use GTDB names, not NCBI names.
@@ -298,7 +301,7 @@ All in `projects/macro_micro_nutrient_cocycling/data/` (gitignored — must use 
 - All 8 analysis scripts executed successfully on-cluster via `berdl_notebook_utils.setup_spark_session.get_spark_session()`
 - All 7 notebooks (NB01-NB07) executed successfully via `jupyter nbconvert --execute`
 - Fisher's exact test results cross-checked: pairwise_detail.csv has 72 rows, 64 FDR-significant
-- Positive controls validated: B. diazoefficiens carries nifH+nifD (true diazotroph), S. meliloti carries all 4 metal families, P. chlororaphis has phz operon
+- Positive controls validated: all 8 targets encode P+Metal. B. diazoefficiens carries nifH+nifD (true diazotroph), S. meliloti carries all 4 metal families, P. chlororaphis has phz operon, S. coelicolor (= S. anthocyanicus) found via GCF_008931305.1
 - Environmental join: 447,570 annotations across 27,017 species (97.5% of total 27,682)
 - Forest plot: 102 rows = 34 phyla × 3 pairs; figure renders correctly with CIs
 - REPORT.md contains all 7 results sections plus interpretation, limitations, references

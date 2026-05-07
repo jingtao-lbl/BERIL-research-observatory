@@ -128,7 +128,7 @@ The dominance of soil Actinomycetota (35/63, 56%) and Pseudomonadota (20/63, 32%
 
 ### 5. Positive-control species check
 
-Seven well-characterized plant-microbe-soil model organisms were looked up in the GTDB pangenome data. Streptomyces coelicolor A3(2) was absent from GTDB R214.
+Eight well-characterized plant-microbe-soil model organisms were looked up in the GTDB pangenome data. *S. coelicolor* A3(2) was reclassified as *S. anthocyanicus* in GTDB R214 (confirmed via genome accession GCF_008931305.1).
 
 | Organism | GTDB species | P-acquisition | N-fixation | Metal-handling | Phenazine |
 |----------|-------------|---------------|------------|----------------|-----------|
@@ -137,10 +137,11 @@ Seven well-characterized plant-microbe-soil model organisms were looked up in th
 | *B. diazoefficiens* | s\_\_Bradyrhizobium\_diazoefficiens | pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA | phzF, phzS |
 | *S. meliloti* | s\_\_Sinorhizobium\_meliloti | phoD, pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA, feoB, HMA | phzF |
 | *M. loti* | s\_\_Mesorhizobium\_loti | pstA/B/C/S, phnC/D/E | nifD | copA, corA, HMA | phzF |
+| *S. coelicolor* | s\_\_Streptomyces\_anthocyanicus | phoD, pstA/B/C/S | — | copA, corA | phzF |
 | *M. extorquens* | s\_\_Methylobacterium\_extorquens | phoA, pstA/B/C/S, phnC/D/E | — | copA, corA | phzF |
 | *P. chlororaphis* | s\_\_Pseudomonas\_E\_chlororaphis | phoA, pstA/B/S | — | copA, corA | phzA/B/F/G (operon) |
 
-All seven species encode both P-acquisition and metal-handling genes, consistent with the genome-wide co-occurrence signal. The two known diazotrophs (*B. diazoefficiens*, *S. meliloti*) carry both nifH and nifD as expected. *S. meliloti* encodes the broadest gene repertoire: all four metal-handling families plus 8 of 9 P-acquisition families. *P. chlororaphis* is the only positive control with a complete phenazine operon (phzA/B/F/G), consistent with its known phenazine-producing phenotype.
+All eight species encode both P-acquisition and metal-handling genes, consistent with the genome-wide co-occurrence signal. The two known diazotrophs (*B. diazoefficiens*, *S. meliloti*) carry both nifH and nifD as expected. *S. meliloti* encodes the broadest gene repertoire: all four metal-handling families plus 8 of 9 P-acquisition families. *P. chlororaphis* is the only positive control with a complete phenazine operon (phzA/B/F/G), consistent with its known phenazine-producing phenotype. *S. coelicolor* — a known phenazine producer — carries only phzF in the pangenome; the remaining phz genes may be annotated under different names in Bakta or absent from the representative genome set.
 
 ### 6. Environmental stratification
 
@@ -212,6 +213,8 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 6. **Phenazine operon definition.** The ≥3 distinct phz gene threshold is a heuristic. Some species may carry partial operons or unlinked phz genes from different biosynthetic pathways. Manual curation of operon structure (e.g., checking genomic synteny) would strengthen the phenazine results.
 
+7. **Actinomycete phenazine under-detection.** The phenazine biosynthesis gene set is anchored on the canonical *Pseudomonas* operon (phzABCDEFG, phzM, phzS) with a ≥3-gene threshold for operon completeness. Actinomycete phenazines (e.g. those produced by *Streptomyces*) use divergent biosynthesis pathways with different gene names that the current Bakta annotation set does not collapse into the same gene family. The Phz×Metal effect in Actinomycetota (trending positive in our analysis) is therefore likely a lower bound on the true coupling. A more comprehensive phenazine gene set incorporating actinomycete-specific markers is a future direction. Positive control: *S. coelicolor* A3(2), reclassified as s\_\_Streptomyces\_anthocyanicus in GTDB R214 (genome GCF\_008931305.1), encodes P-acquisition (phoD, pstA/B/C/S), metal-handling (copA, corA), and phzF, but lacks the canonical multi-gene operon — exactly the under-detection pattern.
+
 ## Future Directions
 
 - **Substrate C (mechanistic, deferred):** Gene-level fitness analysis under controlled P-starvation and metal-stress conditions. The RB-TnSeq dataset in `kescience_fitnessbrowser` lacks P-starvation experiments (see exhaustive search in `memory/20260507e_*`). New RB-TnSeq campaigns under defined low-P media, or GapMind-extended P-pathway scoring, would provide the mechanistic substrate.
@@ -221,6 +224,8 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 - **Phylogenetic independent contrasts:** Apply phylogenetic logistic regression using GTDB phylogenetic distance pairs to control for shared ancestry and test whether co-occurrence remains significant after accounting for phylogenetic signal.
 
 - **Field validation (Point Reyes):** The mafic-vs-felsic fault gradient at Point Reyes (Rowley et al. 2023, 2024) provides a natural experiment to test whether co-released P and trace metals (Co, Cu, Ni) from Fe-oxyhydroxide dissolution shape rhizosphere community composition in the pattern predicted by this genomic analysis.
+
+- **Expanded phenazine gene set:** Expand the phenazine gene set to include actinomycete-specific phenazine biosynthesis markers (e.g. naphthoyl synthase, PhzD-like in *Streptomyces*, RppA polyketide synthases) and re-run the (d)×(c) co-occurrence test. The *Pseudomonas*-anchored gene set used in this study likely under-detects the true scope of the phenazine arm of macro-micro nutrient co-mobilization.
 
 ## References
 
