@@ -126,6 +126,49 @@ The one notable exception within P-acquisition is phoD (PFAM PF09423), which is 
 
 The dominance of soil Actinomycetota (35/63, 56%) and Pseudomonadota (20/63, 32%) among phenazine operon carriers is consistent with the McRose-Newman model: phenazine-mediated Fe(III) reduction is an adaptive strategy in soils where Fe-oxyhydroxides lock up phosphate and trace metals. The *Xenorhabdus* clade (6/63, 10%) represents a distinct ecological niche — insect pathogenesis — where phenazines serve antimicrobial rather than mineral-dissolution functions.
 
+### 5. Positive-control species check
+
+Seven well-characterized plant-microbe-soil model organisms were looked up in the GTDB pangenome data. Streptomyces coelicolor A3(2) was absent from GTDB R214.
+
+| Organism | GTDB species | P-acquisition | N-fixation | Metal-handling | Phenazine |
+|----------|-------------|---------------|------------|----------------|-----------|
+| *P. fluorescens* | s\_\_Pseudomonas\_E\_fluorescens | pstA/B/S, phnC/D/E | nifH | copA, corA | phzF |
+| *P. protegens* | s\_\_Pseudomonas\_E\_protegens | pstA/B/S | — | copA, corA, HMA | phzF |
+| *B. diazoefficiens* | s\_\_Bradyrhizobium\_diazoefficiens | pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA | phzF, phzS |
+| *S. meliloti* | s\_\_Sinorhizobium\_meliloti | phoD, pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA, feoB, HMA | phzF |
+| *M. loti* | s\_\_Mesorhizobium\_loti | pstA/B/C/S, phnC/D/E | nifD | copA, corA, HMA | phzF |
+| *M. extorquens* | s\_\_Methylobacterium\_extorquens | phoA, pstA/B/C/S, phnC/D/E | — | copA, corA | phzF |
+| *P. chlororaphis* | s\_\_Pseudomonas\_E\_chlororaphis | phoA, pstA/B/S | — | copA, corA | phzA/B/F/G (operon) |
+
+All seven species encode both P-acquisition and metal-handling genes, consistent with the genome-wide co-occurrence signal. The two known diazotrophs (*B. diazoefficiens*, *S. meliloti*) carry both nifH and nifD as expected. *S. meliloti* encodes the broadest gene repertoire: all four metal-handling families plus 8 of 9 P-acquisition families. *P. chlororaphis* is the only positive control with a complete phenazine operon (phzA/B/F/G), consistent with its known phenazine-producing phenotype.
+
+### 6. Environmental stratification
+
+Environmental metadata from `ncbi_env` was joined to 27,009 species via genome biosample accessions and classified into broad categories.
+
+| Environment | n species | P×Metal log-OR | P×Metal p | N×Metal log-OR | N×Metal p |
+|-------------|----------|---------------:|----------:|---------------:|----------:|
+| Soil/rhizosphere | 3,406 | +1.34 | 1.9×10⁻⁹ | +0.36 | 0.17 |
+| Plant-associated | 1,134 | +1.51 | 1.3×10⁻⁶ | +0.94 | 0.064 |
+| Marine | 3,449 | +0.26 | 7.8×10⁻³ | +1.37 | 4.2×10⁻²³ |
+| Freshwater/engineered | 2,059 | +1.31 | 6.6×10⁻⁹ | +1.46 | 1.5×10⁻⁵ |
+| Human-associated | 3,497 | +1.37 | 3.4×10⁻²⁰ | +0.97 | 7.1×10⁻⁶ |
+| Animal-associated | 840 | +0.23 | 0.39 | +2.27 | 2.1×10⁻⁷ |
+
+P × Metal co-occurrence is significant across all environments except animal-associated (p=0.39). The strongest P × Metal effects are in plant-associated (log-OR=+1.51) and soil/rhizosphere (log-OR=+1.34) environments, consistent with the prediction that P-metal coupling is most relevant where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. N × Metal shows a different pattern: the strongest effect is in marine (log-OR=+1.37) and animal-associated (log-OR=+2.27) environments, while soil/rhizosphere shows a non-significant trend (log-OR=+0.36, p=0.17). Phenazine operon × Metal associations were non-significant in all environments due to the rarity of operon carriers (0–29 per environment).
+
+### 7. Per-phylum forest plot
+
+Log-odds ratios with 95% confidence intervals were computed for each major phylum (n≥50 species) for the three primary co-occurrence pairs (Figure 2).
+
+**P × Metal:** Positive log-OR in 28/34 phyla. Strongest effects in Cyanobacteriota (log-OR=+1.86, p=4.1×10⁻¹³), Bacillota (+1.64, p=8.0×10⁻²⁴), and Pseudomonadota (+0.94, p=7.7×10⁻²¹). Five phyla show significant negative associations, including Myxococcota (−2.63, p=0.003) and Spirochaetota (−1.79, p=0.004).
+
+**N × Metal:** Positive log-OR in 24/34 phyla. Strongest in Cyanobacteriota (+2.11, p=2.1×10⁻¹⁴), Nanoarchaeota (+2.72, p=8.2×10⁻⁴), and Spirochaetota (+2.72, p=6.1×10⁻³). The pattern is phylogenetically broader than P × Metal, reflecting that diazotrophy spans diverse lineages.
+
+**Phz × Metal:** Only Pseudomonadota (+1.87, p=0.11) and Actinomycetota (+1.14, p=0.40) show positive trends, consistent with the taxonomic concentration of phenazine operons. All other phyla show null or weakly negative effects due to the extreme rarity of phenazine operons outside these two phyla.
+
+**Figure 2.** Per-phylum forest plot of log-odds ratios for (A) P × Metal, (B) N × Metal, and (C) Phz × Metal co-occurrence. Blue bars: Fisher p<0.05; gray bars: non-significant. See `figures/forest_plot.png`.
+
 ## Interpretation
 
 ### The macro-micro nutrient coupling is genomically encoded
@@ -188,6 +231,8 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 ## Data and Reproducibility
 
-All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/05_figure.py`. Intermediate data files are in `data/`. The multi-panel figure is at `figures/figure1_cooccurrence.png`.
+All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/08_forest_plot.py`. Intermediate data files are in `data/`. Figures are in `figures/`.
 
-**Figure 1.** (A) Phi coefficient heatmap for 72 nutrient × metal gene pairs (FDR-significant pairs shown). (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers.
+**Figure 1.** (A) Phi coefficient heatmap for 72 nutrient × metal gene pairs (FDR-significant pairs shown). (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers. See `figures/figure1_cooccurrence.png`.
+
+**Figure 2.** Per-phylum forest plot of log-odds ratios with 95% CIs for P × Metal, N × Metal, and Phz × Metal co-occurrence across 34 GTDB phyla. See `figures/forest_plot.png`.
