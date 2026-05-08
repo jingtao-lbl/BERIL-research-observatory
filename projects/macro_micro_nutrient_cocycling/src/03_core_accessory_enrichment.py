@@ -117,11 +117,11 @@ for nutrient_label, nutrient_list in nutrient_gene_sets.items():
     print(f"  Stouffer meta-Z: {stouffer_z:.3f}")
     print(f"  Stouffer meta-p: {stouffer_p:.2e}")
 
-    ors = [r['odds_ratio'] for r in per_species_results if r['odds_ratio'] != 'inf']
-    ors_numeric = [float(x) for x in ors]
-    median_or = np.median(ors_numeric) if ors_numeric else 0
-    frac_enriched = np.mean([x > 1 for x in ors_numeric]) if ors_numeric else 0
-    print(f"  Median OR across species: {median_or:.3f}")
+    ors_finite = [float(r['odds_ratio']) for r in per_species_results
+                   if r['odds_ratio'] != 'inf' and np.isfinite(float(r['odds_ratio']))]
+    median_or = float(np.median(ors_finite)) if ors_finite else float('nan')
+    frac_enriched = np.mean([x > 1 for x in ors_finite]) if ors_finite else 0
+    print(f"  Median OR across species (finite only): {median_or:.3f}" if not np.isnan(median_or) else "  Median OR: all infinite")
     print(f"  Fraction species with OR > 1: {frac_enriched:.3f}")
 
     summary_rows.append({

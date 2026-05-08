@@ -33,7 +33,7 @@ Stratify co-occurrence by GTDB phylum/class/family. Test prediction that plant-a
 
 ## Data Sources
 
-- **Primary:** `kbase_ke_pangenome` — 132.5M gene clusters, 27,702 species pangenomes
+- **Primary:** `kbase_ke_pangenome` — 132.5M gene clusters, 27,682 species pangenomes (27,702 total in database; 27,682 with gene cluster data)
 - **Tables:** `gene_cluster`, `bakta_annotations`, `bakta_pfam_domains`, `gtdb_species_clade`
 
 ## Query Strategy
@@ -54,3 +54,4 @@ Stratify co-occurrence by GTDB phylum/class/family. Test prediction that plant-a
 - **v1** (2026-05-07): Initial plan. Four-step analysis on `kbase_ke_pangenome` after pivot from Substrate C (fitnessbrowser lacks P-starvation data).
 - **v2** (2026-05-07): Added phenazine biosynthesis gene family group (d) per user request, citing McRose & Newman 2021. Extended from 16 to 23 gene families.
 - **v3** (2026-05-07): Analysis complete. All four steps executed. Results support H1 with caveats (phylogenetic non-independence not fully controlled).
+- **v4** (2026-05-08): Species count updated from plan estimate (27,702) to actual query result (27,682). Added enrichments (positive controls, environmental stratification, forest plot) and resolved reviewer feedback across 5 review cycles.

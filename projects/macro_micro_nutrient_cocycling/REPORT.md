@@ -161,7 +161,7 @@ Environmental metadata from `ncbi_env` was joined to 27,009 species via genome b
 | Animal-associated | 840 | +0.23 | 0.39 | +2.27 | 2.1×10⁻⁷ |
 | Other (unclassified) | 12,624 | +1.00 | 5.4×10⁻³⁹ | +1.49 | 1.7×10⁻³⁷ |
 
-P × Metal co-occurrence is significant across all environments except animal-associated (p=0.39). The strongest P × Metal effects are in plant-associated (log-OR=+1.51) and soil/rhizosphere (log-OR=+1.34) environments, consistent with the prediction that P-metal coupling is most relevant where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. N × Metal shows a different pattern: the strongest effect is in marine (log-OR=+1.37) and animal-associated (log-OR=+2.27) environments, while soil/rhizosphere shows a non-significant trend (log-OR=+0.36, p=0.17). Phenazine operon × Metal associations were non-significant in all environments due to the rarity of operon carriers (0–29 per environment).
+P × Metal co-occurrence is significant across all environments except animal-associated (p=0.39). The strongest P × Metal effects are in plant-associated (log-OR=+1.51) and soil/rhizosphere (log-OR=+1.34) environments, consistent with the prediction that P-metal coupling is most relevant where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. N × Metal shows a different pattern: the strongest effect is in marine (log-OR=+1.37) and animal-associated (log-OR=+2.27) environments, while soil/rhizosphere shows a non-significant trend (log-OR=+0.36, p=0.17). Phenazine operon × Metal associations were non-significant in all environments due to the rarity of operon carriers (0–29 per environment). See Figure 3 for a visual comparison of P×Metal and N×Metal log-ORs across environments.
 
 ### 7. Per-phylum forest plot
 
@@ -222,6 +222,8 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 8. **Environmental classification keyword priority.** The environment classifier in src/07 uses a fixed keyword priority order: terms like "root", "sediment", and "mud" are matched to soil/rhizosphere before marine. Marine sediment isolates and root-zone endophytes may therefore be classified as soil rather than marine or plant-associated. The large "other" category (12,628 species) absorbs unclassifiable entries, limiting overall misclassification impact.
 
+9. **Gene name case sensitivity.** Spark SQL queries for gene-name-based families (pstA, pstB, phzF, etc.) use exact case matching (e.g., `ba.gene = 'pstA'`). Bakta gene name capitalization is not fully standardized; some annotations may use different casing (e.g., `PstA`, `PSTA`) and would be missed by the current queries. KEGG KO and PFAM domain-based families are unaffected.
+
 ## Future Directions
 
 - **Substrate C (mechanistic, deferred):** Gene-level fitness analysis under controlled P-starvation and metal-stress conditions. The RB-TnSeq dataset in `kescience_fitnessbrowser` lacks P-starvation experiments (see exhaustive search in `memory/20260507e_*`). New RB-TnSeq campaigns under defined low-P media, or GapMind-extended P-pathway scoring, would provide the mechanistic substrate.
@@ -248,3 +250,5 @@ All analyses were performed on the KBase BER Data Lakehouse using Spark SQL quer
 **Figure 1.** (A) Phi coefficient heatmap for 18 nutrient/phenazine × 4 metal gene pairs (72 FDR-tested pairs). nifH(Pfam) is shown for visual reference as the broad-definition sensitivity check but is excluded from the 72-pair FDR correction. (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers. See `figures/figure1_cooccurrence.png`.
 
 **Figure 2.** Per-phylum forest plot of log-odds ratios with 95% CIs for P × Metal, N × Metal, and Phz × Metal co-occurrence across 34 GTDB phyla. See `figures/forest_plot.png`.
+
+**Figure 3.** Environmental stratification of P × Metal and N × Metal log-odds ratios across 6 broad environment categories. Blue bars: P × Metal; red bars: N × Metal. Saturated colors: Fisher p<0.05; pale colors: non-significant. See `figures/figure3_env_stratification.png`.
