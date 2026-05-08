@@ -68,6 +68,8 @@ All group pairs except N × Phz-operon show significant positive co-occurrence. 
 
 **Sensitivity check (N-fixation breadth):** Including PFAM PF00142 expands the N-fixation set from 2,746 to 5,872 species. The N × Metal phi changes from 0.088 to 0.107, and OR drops from 10.1 to 4.0. The inflated species count from PF00142 includes ferredoxin-containing non-diazotrophs, diluting the true diazotroph signal. All primary results use the KO-restricted definition.
 
+**Note on broad Phenazine group:** The broad Phenazine group (any phz gene ≥1, 10,308 species) shows phi=0.262 and OR=5.2 with P-acquisition — higher than P × Metal (phi=0.110). We do not interpret this as mechanistic evidence of P–phenazine coupling because the phzF superfamily is prevalent across phylogenetically diverse organisms regardless of operon completeness; only the ≥3-gene operon definition captures biologically meaningful phenazine producers.
+
 ### 2. Individual gene pair highlights (FDR-corrected)
 
 Of 72 nutrient × metal gene pairs tested, 64 are significant at FDR q<0.05.
@@ -164,7 +166,7 @@ P × Metal co-occurrence is significant across all environments except animal-as
 
 Log-odds ratios with 95% confidence intervals were computed for each major phylum (n≥50 species) for the three primary co-occurrence pairs (Figure 2).
 
-**P × Metal:** Positive log-OR in 28/34 phyla. Strongest effects in Cyanobacteriota (log-OR=+1.86, p=4.1×10⁻¹³), Bacillota (+1.64, p=8.0×10⁻²⁴), and Pseudomonadota (+0.94, p=7.7×10⁻²¹). Five phyla show significant negative associations, including Myxococcota (−2.63, p=0.003) and Spirochaetota (−1.79, p=0.004).
+**P × Metal:** Positive log-OR in 28/34 phyla. The largest effect size is in Fusobacteriota (log-OR=+2.93, p=0.010, n=59), though this phylum is small. Among phyla with n≥400 species, the strongest effects are in Cyanobacteriota (log-OR=+1.86, p=4.1×10⁻¹³, n=469), Bacillota (+1.64, p=8.0×10⁻²⁴, n=2,146), and Pseudomonadota (+0.94, p=7.7×10⁻²¹, n=7,456). Five phyla show significant negative associations, including Myxococcota (−2.63, p=0.003) and Spirochaetota (−1.79, p=0.004).
 
 **N × Metal:** Positive log-OR in 24/34 phyla. Strongest in Cyanobacteriota (+2.11, p=2.1×10⁻¹⁴), Nanoarchaeota (+2.72, p=8.2×10⁻⁴), and Spirochaetota (+2.72, p=6.1×10⁻³). The pattern is phylogenetically broader than P × Metal, reflecting that diazotrophy spans diverse lineages.
 
@@ -216,6 +218,8 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 6. **Phenazine operon definition.** The ≥3 distinct phz gene threshold is a heuristic. Some species may carry partial operons or unlinked phz genes from different biosynthetic pathways. Manual curation of operon structure (e.g., checking genomic synteny) would strengthen the phenazine results.
 
 7. **Actinomycete phenazine under-detection.** The phenazine biosynthesis gene set is anchored on the canonical *Pseudomonas* operon (phzABCDEFG, phzM, phzS) with a ≥3-gene threshold for operon completeness. Actinomycete phenazines (e.g. those produced by *Streptomyces*) use divergent biosynthesis pathways with different gene names that the current Bakta annotation set does not collapse into the same gene family. The Phz×Metal effect in Actinomycetota (trending positive in our analysis) is therefore likely a lower bound on the true coupling. A more comprehensive phenazine gene set incorporating actinomycete-specific markers is a future direction. Positive control: *S. coelicolor* A3(2), reclassified as s\_\_Streptomyces\_anthocyanicus in GTDB R214 (genome GCF\_008931305.1), encodes P-acquisition (phoD, pstA/B/C/S), metal-handling (copA, corA), and phzF, but lacks the canonical multi-gene operon — exactly the under-detection pattern.
+
+8. **Environmental classification keyword priority.** The environment classifier in src/07 uses a fixed keyword priority order: terms like "root", "sediment", and "mud" are matched to soil/rhizosphere before marine. Marine sediment isolates and root-zone endophytes may therefore be classified as soil rather than marine or plant-associated. The large "other" category (12,628 species) absorbs unclassifiable entries, limiting overall misclassification impact.
 
 ## Future Directions
 

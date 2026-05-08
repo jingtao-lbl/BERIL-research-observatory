@@ -122,13 +122,13 @@ p_has_cols = [f'has_{g}' for g in p_genes if f'has_{g}' in pdf.columns]
 pdf['has_P_acquisition'] = (pdf[p_has_cols].sum(axis=1) >= 1).astype(int)
 pdf['n_P_genes'] = pdf[p_has_cols].sum(axis=1)
 
-nif_genes_ko = ['nifH', 'nifD']
-nif_ko_cols = [f'has_{g}' for g in nif_genes_ko if f'has_{g}' in pdf.columns]
-pdf['has_N_fixation'] = (pdf[nif_ko_cols].sum(axis=1) >= 1).astype(int)
-
 nif_genes_broad = ['nifH', 'nifD', 'nifH_pfam']
 nif_broad_cols = [f'has_{g}' for g in nif_genes_broad if f'has_{g}' in pdf.columns]
-pdf['has_N_fixation_broad'] = (pdf[nif_broad_cols].sum(axis=1) >= 1).astype(int)
+pdf['has_N_fixation'] = (pdf[nif_broad_cols].sum(axis=1) >= 1).astype(int)
+
+nif_genes_ko = ['nifH', 'nifD']
+nif_ko_cols = [f'has_{g}' for g in nif_genes_ko if f'has_{g}' in pdf.columns]
+pdf['has_N_fixation_ko'] = (pdf[nif_ko_cols].sum(axis=1) >= 1).astype(int)
 
 metal_genes = ['copA', 'corA', 'feoB_pfam', 'HMA_pfam']
 metal_has_cols = [f'has_{g}' for g in metal_genes if f'has_{g}' in pdf.columns]

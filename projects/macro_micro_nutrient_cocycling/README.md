@@ -33,11 +33,20 @@ python src/03_core_accessory_enrichment.py
 # Step 4: Phylogenetic stratification
 python src/04_phylogenetic_stratification.py
 
-# Figure
+# Step 5: Figure 1 (multi-panel)
 python src/05_figure.py
+
+# Step 6: Positive-control species check
+python src/06_positive_controls.py
+
+# Step 7: Environmental stratification (requires Spark for ncbi_env query)
+python src/07_environmental_stratification.py
+
+# Step 8: Forest plot (Figure 2)
+python src/08_forest_plot.py
 ```
 
-Step 1 requires access to the `kbase_ke_pangenome` tenant on BERDL. Steps 2–5 run on the CSV outputs in `data/`.
+Steps 1 and 7 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 2–6 and 8 run locally on the CSV outputs in `data/`.
 
 ## Authors
 
