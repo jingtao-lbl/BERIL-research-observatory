@@ -1,0 +1,6 @@
+numpy>=1.24
+pandas>=2.0
+scipy>=1.11
+matplotlib>=3.7
+pyspark>=3.4
+berdl_notebook_utils  # Spark steps (01, 07) only; available on BERDL JupyterHub
