@@ -41,13 +41,13 @@ Bacterial pangenomes encoding genes for macro-nutrient acquisition (phosphatases
 
 N-fixation was defined using KEGG KO assignments only (nifH = K02588, nifD = K02586; 2,746 species). PFAM PF00142 (Fer4_NifH) was evaluated as a sensitivity check but excluded from the primary analysis because it captures the broader Fer4 ferredoxin superfamily (5,872 species), inflating apparent N-fixation prevalence by 114% (see Limitations).
 
-Species-level presence was scored as ≥1 gene cluster matching the annotation criterion. Phenazine "operon carriers" required ≥3 distinct phz gene families in a single species, filtering broad-family hits (phzF superfamily alone spans 10,856 species) from true operon-bearing lineages (63 species).
+Species-level presence was scored as ≥1 gene cluster matching the annotation criterion. Phenazine "operon carriers" required ≥3 distinct phz gene families in a single species, filtering broad-family hits (phzF superfamily alone spans 10,856 species) from true operon-bearing lineages (63 species). The ≥3 threshold was chosen as the minimum that excludes species with only 1–2 divergent phz-family hits while capturing known Pseudomonas operon architectures (phzABFG+); the count is robust to threshold choice (≥2: 1,125 species; ≥4: 34 species).
 
 ### Statistical tests
 
 - **Pairwise co-occurrence:** Jaccard index, phi coefficient, Fisher's exact test (2×2 contingency) for all group pairs and all 72 individual nutrient×metal gene pairs.
 - **Multiple testing correction:** Benjamini-Hochberg FDR applied to all 72 Fisher tests; 64/72 pairs significant at q<0.05.
-- **Permutation null:** 1,000 random permutations of group membership vectors, preserving marginal counts. Observed phi compared to null distribution; Z-score and permutation p-value reported.
+- **Permutation null:** 1,000 random permutations of group membership vectors, preserving marginal counts. Observed phi compared to null distribution; Z-score and permutation p-value reported. With N=1,000 permutations, the minimum representable p-value is 1/1,001 ≈ 0.001; values reported as p<0.001 indicate that the observed phi exceeded all null draws.
 - **Core vs. accessory enrichment:** Per-species Fisher's exact test on a 2×2 table of (core, non-core) × (nutrient gene set, metal gene set) gene counts within each species. This tests whether the two functional groups differ in their core-genome proportion. Per-species Z-scores are aggregated via Stouffer meta-analysis (Z_meta = Σz / √n) to assess the direction and magnitude of differential core enrichment across all co-encoding species.
 - **Phylogenetic stratification:** Phi coefficient computed within each GTDB phylum and class (minimum 50 or 20 species, respectively). Plant-associated families tested against global baseline.
 
@@ -149,7 +149,7 @@ All eight species encode both P-acquisition and metal-handling genes, consistent
 
 ### 6. Environmental stratification
 
-Environmental metadata from `ncbi_env` was joined to 27,009 species via genome biosample accessions and classified into broad categories. Species counts in the table below reflect those with both environment assignments and gene family data (e.g., 3,406 of 3,409 soil-assigned species).
+Environmental metadata from `ncbi_env` was joined to 27,009 species via genome biosample accessions and classified into broad categories. Species counts in the table below reflect those with both environment assignments and gene family data; 8 species with environment assignments lacked complete gene family annotations and were excluded from co-occurrence tests (e.g., soil: 3,406 of 3,409; plant: 1,134 of 1,135).
 
 | Environment | n species | P×Metal log-OR | P×Metal p | N×Metal log-OR | N×Metal p |
 |-------------|----------|---------------:|----------:|---------------:|----------:|
@@ -159,6 +159,7 @@ Environmental metadata from `ncbi_env` was joined to 27,009 species via genome b
 | Freshwater/engineered | 2,059 | +1.31 | 6.6×10⁻⁹ | +1.46 | 1.5×10⁻⁵ |
 | Human-associated | 3,497 | +1.37 | 3.4×10⁻²⁰ | +0.97 | 7.1×10⁻⁶ |
 | Animal-associated | 840 | +0.23 | 0.39 | +2.27 | 2.1×10⁻⁷ |
+| Other (unclassified) | 12,624 | +1.00 | 5.4×10⁻³⁹ | +1.49 | 1.7×10⁻³⁷ |
 
 P × Metal co-occurrence is significant across all environments except animal-associated (p=0.39). The strongest P × Metal effects are in plant-associated (log-OR=+1.51) and soil/rhizosphere (log-OR=+1.34) environments, consistent with the prediction that P-metal coupling is most relevant where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. N × Metal shows a different pattern: the strongest effect is in marine (log-OR=+1.37) and animal-associated (log-OR=+2.27) environments, while soil/rhizosphere shows a non-significant trend (log-OR=+0.36, p=0.17). Phenazine operon × Metal associations were non-significant in all environments due to the rarity of operon carriers (0–29 per environment).
 

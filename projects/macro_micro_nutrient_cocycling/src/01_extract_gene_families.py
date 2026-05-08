@@ -80,6 +80,8 @@ pfam_families = {
     'HMA_pfam': 'PF00403',
 }
 
+pdf = pdf.set_index('gtdb_species_clade_id')
+
 for name, pfam_prefix in pfam_families.items():
     print(f"Extracting PFAM {name} ({pfam_prefix})...")
     pfam_query = f"""
@@ -97,12 +99,11 @@ for name, pfam_prefix in pfam_families.items():
     pfam_df = spark.sql(pfam_query).toPandas()
     pfam_df = pfam_df.set_index('gtdb_species_clade_id')
     for col in pfam_df.columns:
-        pdf = pdf.set_index('gtdb_species_clade_id') if 'gtdb_species_clade_id' in pdf.columns else pdf
         if col not in pdf.columns:
             pdf[col] = 0
         pdf.loc[pfam_df.index, col] = pfam_df[col]
-    pdf = pdf.reset_index()
 
+pdf = pdf.reset_index()
 pdf = pdf.fillna(0)
 
 for col in pdf.columns:
@@ -122,13 +123,17 @@ p_has_cols = [f'has_{g}' for g in p_genes if f'has_{g}' in pdf.columns]
 pdf['has_P_acquisition'] = (pdf[p_has_cols].sum(axis=1) >= 1).astype(int)
 pdf['n_P_genes'] = pdf[p_has_cols].sum(axis=1)
 
-nif_genes_broad = ['nifH', 'nifD', 'nifH_pfam']
-nif_broad_cols = [f'has_{g}' for g in nif_genes_broad if f'has_{g}' in pdf.columns]
-pdf['has_N_fixation'] = (pdf[nif_broad_cols].sum(axis=1) >= 1).astype(int)
-
+# N-fixation column semantics:
+#   has_N_fixation = has_nifH OR has_nifD (KO-only, n=2,746 species).
+#   has_N_fixation_broad = has_nifH OR has_nifD OR has_nifH_pfam (n=5,872 species).
+#   REPORT.md primary analyses use has_N_fixation.
 nif_genes_ko = ['nifH', 'nifD']
 nif_ko_cols = [f'has_{g}' for g in nif_genes_ko if f'has_{g}' in pdf.columns]
-pdf['has_N_fixation_ko'] = (pdf[nif_ko_cols].sum(axis=1) >= 1).astype(int)
+pdf['has_N_fixation'] = (pdf[nif_ko_cols].sum(axis=1) >= 1).astype(int)
+
+nif_genes_broad = ['nifH', 'nifD', 'nifH_pfam']
+nif_broad_cols = [f'has_{g}' for g in nif_genes_broad if f'has_{g}' in pdf.columns]
+pdf['has_N_fixation_broad'] = (pdf[nif_broad_cols].sum(axis=1) >= 1).astype(int)
 
 metal_genes = ['copA', 'corA', 'feoB_pfam', 'HMA_pfam']
 metal_has_cols = [f'has_{g}' for g in metal_genes if f'has_{g}' in pdf.columns]
