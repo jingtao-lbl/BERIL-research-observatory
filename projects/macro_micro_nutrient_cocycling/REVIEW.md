@@ -8,90 +8,79 @@ project: macro_micro_nutrient_cocycling
 
 ## Summary
 
-This is a well-executed, largely complete pangenomics project that tests a mechanistically motivated hypothesis: do bacterial genomes encoding macro-nutrient acquisition (P, N) and phenazine biosynthesis genes disproportionately co-encode trace-metal handling genes? The research question is specific and grounded in published biochemistry (McRose & Newman 2021), the four-step analysis is methodologically sound, and the findings are clearly supported by the data. The project is reproducible from cached CSV outputs (Steps 2–5), documentation is thorough, and limitations are honestly acknowledged — including the dominant caveat of phylogenetic non-independence. The main areas for improvement are: (1) a potentially over-broad PFAM definition for `nifH_pfam` (PF00142) that may be inflating the N-fixation × metal signal; (2) absence of multiple testing correction discussion for the 76 pairwise Fisher tests; and (3) an unreported negative Stouffer Z for the N-fixation core-enrichment analysis that has biological interest. Overall the project is close to submission-ready with minor revisions.
+This is a well-motivated, methodologically structured project with a clearly stated hypothesis, a large and appropriate dataset (27,682 GTDB species pangenomes), and a comprehensive suite of statistical tests. The REPORT.md is the project's strongest artifact: it clearly states the hypothesis, presents results in well-organized tables, interprets positive and negative associations biologically, and acknowledges seven distinct limitations including phylogenetic non-independence and annotation-dependent coverage. The positive-control validation against eight model organisms is a particularly good practice. However, the project has one critical reproducibility gap: the permutation test code in NB02 uses a different N-fixation gene definition than the canonical `src/02_cooccurrence_stats.py` script that actually produced the reported results, meaning a reader who runs the notebooks will obtain different Z-scores than those cited in the REPORT. Additionally, the `has_N_fixation` column in the output CSV silently encodes the broad (PFAM-inclusive) N-fixation definition rather than the KO-only definition described in the REPORT as primary, and the forest plot generation code is absent from NB07. These gaps should be resolved before the project is treated as fully reproducible.
+
+---
 
 ## Methodology
 
-**Research question and hypothesis:** Both are clearly stated and testable. The null and alternative hypotheses (H0/H1) in RESEARCH_PLAN.md are specific and matched to the statistical tests used. The link to the McRose-Newman mechanism and cofactor biochemistry provides a compelling prior expectation for each tested pair.
+**Research question:** Clearly stated and testable. The H1/H0 framing is explicit, and the four-step pipeline (gene family extraction → co-occurrence statistics → core/accessory enrichment → phylogenetic stratification) maps directly onto the research question.
 
-**Approach:** The four-step pipeline — gene family extraction → co-occurrence statistics → core/accessory enrichment → phylogenetic stratification — is logical and well-scoped. The permutation null (1,000 shuffles preserving marginal counts) is an appropriate complement to Fisher's exact test, adding robustness to the inference. The Stouffer meta-analysis for core-enrichment is well-suited to the many-species design.
+**Approach soundness:** Appropriate for the question. Fisher's exact test and phi coefficient are standard for 2×2 co-occurrence, and the permutation null model (preserving marginal counts) correctly controls for gene family prevalence. FDR correction (BH) is applied across all 72 pairwise tests. The environmental stratification (NB06) adds a useful ecological lens. The positive-control validation (NB05) is good practice and all eight model organisms return expected gene profiles.
 
-**Data sources:** The primary source (`kbase_ke_pangenome`, 132.5M gene clusters, 27,682 species) is clearly identified, along with the relevant tables (`gene_cluster`, `bakta_annotations`, `bakta_pfam_domains`, `gtdb_species_clade`). Gene family definitions are tabulated in the REPORT with annotation sources, making the query strategy auditable.
+**Data sources:** Clearly identified. The `kbase_ke_pangenome` database, GTDB R214, Bakta annotations (KEGG KO + PFAM), and `ncbi_env` metadata are all named and the query strategy is documented in RESEARCH_PLAN.md and the src scripts.
 
-**Phenazine operon threshold:** The decision to require ≥3 distinct phz gene families to define a true "operon carrier" is well-motivated — without this filter, phzF alone (a broad superfamily) would score 10,856 species, reducing a specific biological signal to noise. This threshold is clearly documented and the 63-species result is a qualitatively distinct finding.
+**N-fixation definition and PFAM PF00142:** The REPORT correctly identifies that PF00142 (Fer4_NifH) captures the broader Fer4 ferredoxin superfamily (5,872 vs. 2,746 KO-only species) and explicitly uses KO-only as the primary analysis with PF00142 as a sensitivity check. This is well-handled in the REPORT and in `src/02_cooccurrence_stats.py`. However, the `has_N_fixation` derived column written by `src/01_extract_gene_families.py` (line 126) uses `nif_genes = ['nifH', 'nifD', 'nifH_pfam']` — the **broad definition**. NB01 confirms this: it prints "N-fixation: 5872 (21.2%)" rather than the KO-only 2,746. This column naming is misleading for anyone building on the data files.
 
-**Gap — PF00142 scope for nifH_pfam:** The RESEARCH_PLAN and REPORT identify nifH(Pfam) as PF00142. In PFAM, PF00142 is the "Ferredoxin" domain — a small [2Fe-2S]-binding domain found broadly in ferredoxin-like proteins, not exclusively in nitrogenase iron protein (NifH). The data bear this out: nifH by KO (K02588) covers 3,396 species, while nifH_pfam (PF00142) covers 6,632 species — nearly double. This strongly suggests PF00142 is capturing ferredoxin-like proteins beyond diazotrophs. Since the strongest individual co-occurrence signals in the analysis are nifH_pfam × feoB (phi=0.269) and nifH_pfam × HMA (phi=0.229), and these are interpreted as evidence for the Fe-Mo cofactor requirement of nitrogenase, it is important to assess how much of this signal arises from general ferredoxin-fold proteins (which also bind Fe-S clusters and would co-occur with metal-handling genes for unrelated reasons). The REPORT should either verify that PF00142 is specific to NifH in this dataset or add a caveat that the nifH_pfam results may capture ferredoxin-like proteins broadly.
-
-**Reproducibility:** The README has a clear `## Reproduction` section that explicitly marks which step requires Spark access (Step 1 only) and which steps run locally on cached CSVs (Steps 2–5). This is excellent practice and follows the Spark/local separation guidance. Anyone with the cached data can run the full statistical analysis and figure generation without cluster access.
+---
 
 ## Code Quality
 
-**SQL queries (src/01_extract_gene_families.py):** Queries are clear and correctly structured. Gene name lookups use exact matching (`ba.gene = 'pstA'`), KEGG KOs use equality, and PFAM lookups use `LIKE 'PFxxxxx.%'` with version-suffix wildcarding — the recommended practice per the BERDL schema guides. The core/auxiliary/singleton breakdown per gene family is computed within the same query, which is efficient.
+**SQL and extraction (src/01):** Well-structured. PFAM queries correctly use `LIKE 'PFxxxxx.%'` (versioned PFAM IDs). The main annotation query handles PFAM families in a second pass, avoiding Spark sub-query fanout issues. Phenazine operon calling (≥3 distinct phz gene families) is a reasonable heuristic, and the limitation of the *Pseudomonas*-anchored gene set for actinomycete phenazines is appropriately noted.
 
-**Known pitfall compliance:** The PFAM LIKE pattern with trailing `.%` is correct. The project correctly avoids the "Commit Notebooks Alongside Artifacts" pitfall — notebooks NB01–NB04 are present with saved outputs (text, tables, figure). The pitfalls in docs/pitfalls.md concerning short-name collisions, WebofMicrobes binary encoding, and MetaPhlAn cross-cohort issues are not applicable to this project's data sources.
+**Co-occurrence statistics (src/02 vs. NB02) — CRITICAL DISCREPANCY:** The canonical script `src/02_cooccurrence_stats.py` defines `N_fixation` as `['nifH', 'nifD']` (KO-only, lines 28–31), which generates the permutation Z-scores cited in the REPORT (N×Metal Z=14.7, P×N Z=10.7). However, the NB02 notebook's inline permutation code cell redefines `N_fixation` as `['nifH', 'nifD', 'nifH_pfam']` (broad, including PF00142). Running that cell produces phi=0.1067 and Z=18.4 for N×Metal, and phi=0.0368 and Z=6.1 for P×N — values that directly contradict the REPORT. A reader reproducing the analysis by running the notebooks will obtain different Z-scores than the REPORT claims, with no explanation. This is an instance of the "Commit Notebooks Alongside Their Artifacts" pitfall documented in `docs/pitfalls.md`: the data files were generated by the correct src script, but the notebook re-implementation diverged.
 
-**Fragile index management in src/01 (minor bug risk):** Lines 100–103 in `src/01_extract_gene_families.py` call `pdf.set_index('gtdb_species_clade_id')` inside a column-level `for col` loop over PFAM results. The re-index only triggers on the first column (when `'gtdb_species_clade_id' in pdf.columns`), then silently uses the already-indexed DataFrame for subsequent columns. This pattern works for the current 4 PFAM families but is fragile — a future contributor who adds a PFAM family could introduce a hard-to-diagnose bug. The fix is simple: move the `set_index` call once outside the inner column loop.
+The cooccurrence_matrix.csv and pairwise_detail.csv data files are correct (generated by the src script), so the REPORT's Fisher statistics are accurate. Only the permutation Z-scores in NB02 are inconsistent.
 
-```python
-# Current (fragile — re-index embedded in column loop):
-for col in pfam_df.columns:
-    pdf = pdf.set_index('gtdb_species_clade_id') if 'gtdb_species_clade_id' in pdf.columns else pdf
-    ...
+**Dead code in src/02:** `rejected = false_discovery_control(p_values, method='bh')` is called but the result is never used — the actual q-values are computed by the manual BH implementation that follows. Note also that `scipy.stats.false_discovery_control` was introduced in scipy 1.11.0, while `requirements.txt` lists `scipy>=1.10`, which would cause an `ImportError` on scipy 1.10.x even though the call is effectively dead code.
 
-# Recommended:
-pdf = pdf.set_index('gtdb_species_clade_id')
-for col in pfam_df.columns:
-    ...
-pdf = pdf.reset_index()
-```
+**Core/accessory enrichment (src/03):** The per-species Stouffer meta-analysis is correctly implemented (`np.sum(z_scores) / np.sqrt(len(z_scores))`). The per-species 2×2 contingency table compares the core/non-core count distribution of nutrient vs. metal gene families within a species — not whether individual gene pairs are jointly core. The REPORT's description is accurate but terse; a clarifying sentence would help readers understand what is being tested.
 
-**Multiple testing correction absent:** The pairwise analysis runs 76 Fisher's exact tests (19 nutrient genes × 4 metal genes) with no Bonferroni or FDR correction. The Bonferroni threshold at α=0.05 is p < 0.00066. Nearly all reported "strong" results pass this threshold comfortably (e.g., nifH_pfam × feoB: p≈0, pstC × feoB: p≈0). However, some entries in the top-10 enrichment table in NB02 do not — notably phzM × HMA (n_both=6, p=0.13) appears in that table (sorted by enrichment ratio, not p-value) but is not statistically significant. The REPORT correctly omits this pair from its narrative, but the methods section should acknowledge the multiple testing context and state a corrected threshold.
+**Forest plot notebook (NB07) — incomplete:** NB07 displays the forest plot with `Image(...)` but contains no code to generate it. The figure `figures/forest_plot.png` exists because `src/08_forest_plot.py` was run separately. Running NB07 from scratch does not produce the figure; it only displays an already-existing file.
 
-**Statistical implementation:** phi coefficient, Jaccard, Fisher's exact, Stouffer meta-analysis, and permutation test are all correctly implemented. The permutation uses `np.random.seed(42)` for reproducibility. The Stouffer Z-score derivation from per-species Fisher p-values (converting p → Z, signing by OR direction) is standard and appropriate.
+**Figure code (NB04):** The multi-panel figure generation is complete and functional. Including `nifH_pfam` as a row in panel A's heatmap (for visualization completeness) while the FDR statement counts 72 pairs (18 nutrient × 4 metal, excluding nifH_pfam as a separate row) is a minor inconsistency: a reader counting heatmap rows arrives at 76 possible tests, conflicting with "72 pairs."
 
-**Code organization:** Each src/ script produces clearly named output files and has a docstring listing outputs. Notebooks load pre-computed CSVs and display results cleanly. NB03 combines two src scripts (03 and 04) into one notebook — this is noted in NB03's header but creates a slight mismatch between the 5 src scripts and 4 notebooks that could confuse a new reader following the README reproduction steps.
+**Notebook organization:** Logical flow across all seven notebooks. Each begins with a markdown cell stating inputs/outputs and referencing the equivalent src script.
+
+---
 
 ## Findings Assessment
 
-**Group-level co-occurrence:** The table in REPORT §Results.1 matches `cooccurrence_matrix.csv` and NB02 outputs. P × Metal (phi=0.110, OR=2.3, p=1.3×10⁻⁶⁵), N × Metal (phi=0.107, OR=4.04, p=1.5×10⁻⁸⁷), and Phz-operon × Metal (phi=0.014, OR=∞, p=9.4×10⁻³) are computed correctly and the conclusions are supported. The negative N × Phz-operon association (OR=0.19, n_both=3) is appropriately flagged as based on sparse counts.
+**Conclusions supported by data:** Yes, with appropriate caveats. The group-level co-occurrence statistics (P×Metal phi=0.110, N×Metal OR=10.1, Phz-operon 100% metal coverage) are verifiable from cooccurrence_matrix.csv, contingency_tables.txt, and NB02's loaded table outputs. The FDR-corrected individual gene-pair analysis (64/72 significant) and core/accessory signatures are directly reproducible from committed data files.
 
-**Individual gene pairs:** The reported top positive associations (nifH_pfam × HMA, nifH_pfam × feoB, phzG × corA, phoD × HMA, phzB × corA) and negative associations (pstC × feoB, pstS × feoB, pstC × HMA) are verified in `pairwise_detail.csv` and NB02. The biological interpretation of the pstC/S × feoB anti-correlation (redox geochemistry, aerobic vs. anaerobic niches) is plausible and well-argued.
+**Limitations acknowledged:** The REPORT includes seven well-reasoned limitations covering presence/absence-only inference, annotation coverage, PF00142 superfamily conflation, phylogenetic non-independence, ecological inference gaps, phenazine operon heuristics, and actinomycete under-detection. This is unusually thorough and constitutes a genuine strength of the project.
 
-**Core vs. accessory enrichment — undiscussed negative Stouffer Z:** The `core_enrichment_summary.csv` shows:
+**Unexpected finding handled well:** The N × Phz-operon depletion (0 overlap) is reported and explained via taxonomic concentration of phenazine operons in non-diazotrophic lineages. The pstC/S–feoB negative association is interpreted via redox niche separation — a biologically plausible and testable explanation.
 
-| Group | Stouffer Z | Direction | Discussed in REPORT? |
-|-------|-----------|-----------|----------------------|
-| P_genes | +68.3 (p≈0) | P-genes more core than metal genes | Yes |
-| N_genes | **−4.853** (p=1×10⁻⁶) | N-genes **less** core than metal genes | **No** |
-| Phz_genes | +2.636 (p=0.008) | Phz-genes more core | Briefly |
+**Potential false positive in positive controls:** NB05 lists *Pseudomonas fluorescens* as encoding `nifH` under N-fixation. *P. fluorescens* is not a known diazotroph; this hit likely reflects annotation noise or a divergent ferredoxin domain. Worth flagging in the REPORT or NB05, as *P. fluorescens* is a prominent model organism whose gene content readers will scrutinize.
 
-The negative Z for N_genes is an interpretable and interesting biological result: in co-occurring N+Metal species, nitrogenase genes are significantly more accessory than metal-handling genes. This is consistent with N-fixation being a conditionally acquired capacity (often on mobile genetic elements — nifH_pfam shows only 32.4% core, the lowest of any displayed gene). The REPORT's "two modes of coupling" framework (stable core vs. flexible accessory) currently places corA and pst/phn in the "stable" category and feoB/HMA/phoD in the "flexible" category, but nifH should also be in the flexible category. This result deserves a paragraph.
+**Minor count discrepancy (NB06 vs. REPORT):** The REPORT states Soil/rhizosphere n=3,406 and Plant-associated n=1,134, while NB06 output shows n=3,409 and n=1,135 respectively. Differences of ≤3 species do not affect conclusions but suggest the REPORT was written from a slightly different run or rounding step.
 
-**Phenazine operon taxonomy — summary framing:** The REPORT states carriers are "dominated by soil Actinomycetota (35/63, 56%) and rhizosphere Pseudomonadota (27/63, 43%)." The 6 Enterobacteriaceae species are Xenorhabdus — insect-associated entomopathogenic nematode symbionts, not rhizosphere colonizers. These are within Pseudomonadota and would be included in the "27/63" figure. The detailed taxonomic section correctly identifies Xenorhabdus as "insect-associated," but the summary framing overstates the rhizosphere connection.
-
-**Plant-associated lineage ceiling effects:** The REPORT correctly identifies that Pseudomonadaceae, Rhizobiaceae, Burkholderiaceae, Streptomycetaceae, and Xanthomonadaceae show near-universal P-acquisition and metal-handling prevalence (100%/93–100%), with enrichment ratios at ~1.00× due to ceiling effects. This is an honest acknowledgment that the phylogenetic stratification test is underpowered for families where virtually every species carries both gene sets.
-
-**Conclusions supported:** The central conclusion — significant genomic coupling of macro-nutrient and metal-handling gene families across 27,682 bacterial pangenomes, with 100% overlap in phenazine operon carriers — is supported by the data. The mechanistic interpretations (Fe-Mo cofactor for nitrogenase, Fe-oxyhydroxide dissolution for phenazines) are appropriate inferences, not overstatements. Limitations are thoroughly and honestly enumerated.
+---
 
 ## Suggestions
 
-1. **Verify PF00142 specificity for nifH in this dataset (high priority).** Cross-check: what fraction of the 6,632 nifH_pfam species also have nifH by KO (K02588, 3,396 species)? If the overlap is under ~60%, PF00142 is capturing a substantial non-diazotrophic signal. If so, add a caveat to REPORT §Methods and §Results that the nifH_pfam × metal associations (phi=0.23–0.27) reflect ferredoxin-like proteins broadly, not just diazotrophs, and report the KO-based nifH × metal associations as the primary N-fixation signal.
+1. **[CRITICAL] Fix the NB02 permutation code to match src/02.** Change the NB02 inline permutation cell's `N_fixation` definition from `['nifH', 'nifD', 'nifH_pfam']` to `['nifH', 'nifD']` to match `src/02_cooccurrence_stats.py` and the REPORT. Re-run the cell and verify that N×Metal Z≈14.7 and P×N Z≈10.7 before committing. Add a comment: `# N_fixation: KO-only, consistent with src/02 primary analysis`.
 
-2. **Discuss the N-fixation Stouffer Z (medium priority).** Add a paragraph in REPORT §Core vs. accessory structure noting that N_genes has Stouffer Z=−4.853 (p=1×10⁻⁶), indicating nitrogenase genes are significantly *more accessory* than co-occurring metal-handling genes in species that encode both. Interpret this as consistent with HGT-mediated acquisition of diazotrophy and update the "two modes of coupling" framework to place nifH in the "Flexible coupling" category alongside feoB/HMA/phoD.
+2. **[HIGH] Fix `has_N_fixation` to reflect the KO-only definition — or rename it.** In `src/01_extract_gene_families.py` (line 125–127), either (a) change `nif_genes = ['nifH', 'nifD', 'nifH_pfam']` to `['nifH', 'nifD']` and add a separate `has_N_fixation_broad` column for the PFAM-inclusive count, or (b) rename the existing column to `has_N_fixation_broad` throughout. The current state silently encodes the broad definition in a column that the REPORT labels as KO-only N-fixation.
 
-3. **Add a multiple testing note to the Methods section (medium priority).** In REPORT §Statistical tests, state the number of individual-pair tests (76) and the Bonferroni threshold (p < 0.00066). Confirm that all narrative-featured associations pass this threshold. Note that the top-10 enrichment table in NB02 is sorted by enrichment ratio rather than p-value, so some low-n entries (e.g., phzM × HMA, p=0.13, n=6) are not statistically significant and should not be cited as evidence.
+3. **[HIGH] Add forest plot generation code to NB07.** Inline the core logic from `src/08_forest_plot.py` into NB07 cells so that running the notebook produces `figures/forest_plot.png` rather than just displaying a pre-existing file.
 
-4. **Correct the summary framing of phenazine carrier ecology (low priority).** Revise "rhizosphere Pseudomonadota (27/63, 43%)" to specify that of the 26 Pseudomonadota carriers, 17 are rhizosphere Pseudomonadaceae, 6 are insect-associated Enterobacteriaceae (Xenorhabdus), 2 are soil Xanthomonadaceae, and 1 is soil Burkholderiaceae. The McRose-Newman model applies to the rhizosphere/soil fraction, not to the Xenorhabdus lineage.
+4. **[MEDIUM] Fix requirements.txt and remove dead scipy import.** Change `scipy>=1.10` to `scipy>=1.11` (the release that added `false_discovery_control`), or remove that import and the dead `rejected = ...` line entirely, since the manual BH implementation is what actually runs.
 
-5. **Fix the index management pattern in src/01 (low priority, robustness).** Move `pdf.set_index('gtdb_species_clade_id')` outside the inner `for col` loop (see Code Quality section above). This prevents a latent bug if the PFAM family list is extended in future work.
+5. **[MEDIUM] Add a brief note about the *P. fluorescens* nifH hit in NB05 or the REPORT.** One sentence acknowledging that *P. fluorescens* is not a confirmed diazotroph and that the KO K02588 hit may represent annotation noise would prevent reader confusion, given the prominence of this organism in rhizosphere research.
 
-6. **Update beril.yaml status to "completed" (low priority).** `beril.yaml` shows `status: analysis` while README says `Status: Completed`. These should be consistent.
+6. **[LOW] Reconcile the 3-species count discrepancy** between the REPORT (Soil n=3,406; Plant n=1,134) and NB06 output (n=3,409; n=1,135). If the REPORT numbers are from a different run, note this; if NB06 is correct, update the REPORT text.
 
-7. **Consider adding class-level stratification to the REPORT (nice-to-have).** `data/class_cooccurrence.csv` is generated by src/04 but not discussed in the REPORT. Within Pseudomonadota, phi values by class (e.g., Gammaproteobacteria vs. Alphaproteobacteria) would clarify which subclade drives the phylum-level signal and whether the Xenorhabdus-hosting Gammaproteobacteria differ from the Pseudomonas-hosting lineages.
+7. **[LOW] Clarify the per-species Fisher test design in the core/accessory section.** Add one sentence to the REPORT Methods explaining that each per-species 2×2 table compares the core vs. non-core distribution of gene counts between the nutrient and metal gene sets within that species, and that the Stouffer Z aggregates sign and magnitude across all co-encoding species.
+
+8. **[LOW] Resolve the nifH_pfam row in heatmap Panel A.** Either include nifH_pfam in the FDR-tested 72-pair set (making it 76 tests) and update the REPORT, or remove it from the heatmap. As-is, a careful reader counting heatmap rows arrives at a different number than the "72 pairs" stated in the text.
+
+---
 
 ## Review Metadata
 
 - **Reviewer**: BERIL Automated Review (Claude, claude-sonnet-4-6)
 - **Date**: 2026-05-07
-- **Scope**: README.md, RESEARCH_PLAN.md, REPORT.md, 4 notebooks (NB01–NB04, all with saved outputs), 5 src/ scripts, 10 data files, 2 figures (figure1_cooccurrence.png/.pdf), requirements.txt, beril.yaml, docs/pitfalls.md
+- **Scope**: README.md, RESEARCH_PLAN.md, REPORT.md, 7 notebooks (NB01–NB07), 8 src scripts, 11 data files, 3 figures
 - **Note**: This review was generated by an AI system. It should be treated as advisory input, not a definitive assessment.

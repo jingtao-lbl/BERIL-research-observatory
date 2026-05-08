@@ -205,9 +205,7 @@ for ng in nutrient_genes:
 
 detail_df = pd.DataFrame(detail_rows)
 
-from scipy.stats import false_discovery_control
 p_values = detail_df['fisher_p'].values
-rejected = false_discovery_control(p_values, method='bh')
 n_tests = len(p_values)
 sorted_idx = np.argsort(p_values)
 q_values = np.empty(n_tests)

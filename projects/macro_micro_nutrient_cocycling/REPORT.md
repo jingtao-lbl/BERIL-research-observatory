@@ -48,7 +48,7 @@ Species-level presence was scored as ≥1 gene cluster matching the annotation c
 - **Pairwise co-occurrence:** Jaccard index, phi coefficient, Fisher's exact test (2×2 contingency) for all group pairs and all 72 individual nutrient×metal gene pairs.
 - **Multiple testing correction:** Benjamini-Hochberg FDR applied to all 72 Fisher tests; 64/72 pairs significant at q<0.05.
 - **Permutation null:** 1,000 random permutations of group membership vectors, preserving marginal counts. Observed phi compared to null distribution; Z-score and permutation p-value reported.
-- **Core vs. accessory enrichment:** Fisher's exact test per species comparing core/non-core fractions between nutrient and metal gene sets. Stouffer meta-analysis across species (Z-scores combined as Z_meta = Σz / √n).
+- **Core vs. accessory enrichment:** Per-species Fisher's exact test on a 2×2 table of (core, non-core) × (nutrient gene set, metal gene set) gene counts within each species. This tests whether the two functional groups differ in their core-genome proportion. Per-species Z-scores are aggregated via Stouffer meta-analysis (Z_meta = Σz / √n) to assess the direction and magnitude of differential core enrichment across all co-encoding species.
 - **Phylogenetic stratification:** Phi coefficient computed within each GTDB phylum and class (minimum 50 or 20 species, respectively). Plant-associated families tested against global baseline.
 
 ## Results
@@ -132,7 +132,7 @@ Eight well-characterized plant-microbe-soil model organisms were looked up in th
 
 | Organism | GTDB species | P-acquisition | N-fixation | Metal-handling | Phenazine |
 |----------|-------------|---------------|------------|----------------|-----------|
-| *P. fluorescens* | s\_\_Pseudomonas\_E\_fluorescens | pstA/B/S, phnC/D/E | nifH | copA, corA | phzF |
+| *P. fluorescens*† | s\_\_Pseudomonas\_E\_fluorescens | pstA/B/S, phnC/D/E | nifH† | copA, corA | phzF |
 | *P. protegens* | s\_\_Pseudomonas\_E\_protegens | pstA/B/S | — | copA, corA, HMA | phzF |
 | *B. diazoefficiens* | s\_\_Bradyrhizobium\_diazoefficiens | pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA | phzF, phzS |
 | *S. meliloti* | s\_\_Sinorhizobium\_meliloti | phoD, pstA/B/C/S, phnC/D/E | nifH, nifD | copA, corA, feoB, HMA | phzF |
@@ -141,11 +141,13 @@ Eight well-characterized plant-microbe-soil model organisms were looked up in th
 | *M. extorquens* | s\_\_Methylobacterium\_extorquens | phoA, pstA/B/C/S, phnC/D/E | — | copA, corA | phzF |
 | *P. chlororaphis* | s\_\_Pseudomonas\_E\_chlororaphis | phoA, pstA/B/S | — | copA, corA | phzA/B/F/G (operon) |
 
+†*P. fluorescens* is not a confirmed diazotroph; the nifH hit (KO K02588) likely reflects a divergent Fer4-family ferredoxin rather than true nitrogenase. This does not affect the primary analysis, which defines N-fixation from the full species gene matrix in src/02.
+
 All eight species encode both P-acquisition and metal-handling genes, consistent with the genome-wide co-occurrence signal. The two known diazotrophs (*B. diazoefficiens*, *S. meliloti*) carry both nifH and nifD as expected. *S. meliloti* encodes the broadest gene repertoire: all four metal-handling families plus 8 of 9 P-acquisition families. *P. chlororaphis* is the only positive control with a complete phenazine operon (phzA/B/F/G), consistent with its known phenazine-producing phenotype. *S. coelicolor* — a known phenazine producer — carries only phzF in the pangenome; the remaining phz genes may be annotated under different names in Bakta or absent from the representative genome set.
 
 ### 6. Environmental stratification
 
-Environmental metadata from `ncbi_env` was joined to 27,009 species via genome biosample accessions and classified into broad categories.
+Environmental metadata from `ncbi_env` was joined to 27,009 species via genome biosample accessions and classified into broad categories. Species counts in the table below reflect those with both environment assignments and gene family data (e.g., 3,406 of 3,409 soil-assigned species).
 
 | Environment | n species | P×Metal log-OR | P×Metal p | N×Metal log-OR | N×Metal p |
 |-------------|----------|---------------:|----------:|---------------:|----------:|
@@ -238,6 +240,6 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/08_forest_plot.py`. Intermediate data files are in `data/`. Figures are in `figures/`.
 
-**Figure 1.** (A) Phi coefficient heatmap for 72 nutrient × metal gene pairs (FDR-significant pairs shown). (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers. See `figures/figure1_cooccurrence.png`.
+**Figure 1.** (A) Phi coefficient heatmap for 18 nutrient/phenazine × 4 metal gene pairs (72 FDR-tested pairs). nifH(Pfam) is shown for visual reference as the broad-definition sensitivity check but is excluded from the 72-pair FDR correction. (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers. See `figures/figure1_cooccurrence.png`.
 
 **Figure 2.** Per-phylum forest plot of log-odds ratios with 95% CIs for P × Metal, N × Metal, and Phz × Metal co-occurrence across 34 GTDB phyla. See `figures/forest_plot.png`.
