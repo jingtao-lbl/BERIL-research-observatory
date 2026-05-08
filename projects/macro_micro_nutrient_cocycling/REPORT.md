@@ -6,7 +6,7 @@
 
 2. **N-fixation and metal-handling show the strongest per-species association.** Using KEGG KO-defined nifH/nifD (2,746 species), N × Metal has OR=10.1 (Fisher p=1.3×10⁻⁷¹; permutation Z=14.7). The high OR reflects near-universal metal gene presence among true diazotrophs (2,719/2,746 = 99.0%). Individual gene pairs (nifH × HMA, nifH × feoB) reach enrichments of 1.42× with phi=0.077 (all FDR q<0.05).
 
-3. **All 63 phenazine operon carriers encode both P-acquisition and metal-handling genes** (100% overlap, OR=∞, Fisher p=9.4×10⁻³ for Phz-operon × Metal). These 63 species are concentrated in soil and insect-pathogenic families: Streptomycetaceae (24), Pseudomonadaceae (17), Streptosporangiaceae (10), and Enterobacteriaceae (6, all *Xenorhabdus* — entomopathogenic nematode symbionts).
+3. **All 63 phenazine operon carriers encode both P-acquisition and metal-handling genes** (100% overlap, OR=∞, Fisher p=9.4×10⁻³ for Phz-operon × Metal). While the overlap is complete, the statistical significance is modest given that 91.7% of all species encode at least one metal-handling gene; the Fisher test and permutation Z=2.3 quantify how surprising 63/63 is against this high background prevalence. These 63 species are concentrated in soil and insect-pathogenic families: Streptomycetaceae (24), Pseudomonadaceae (17), Streptosporangiaceae (10), and Enterobacteriaceae (6, all *Xenorhabdus* — entomopathogenic nematode symbionts).
 
 4. **Three distinct genomic signatures of macro-micro coupling emerge from core/accessory analysis.** P-acquisition genes are predominantly core (70.7%; Stouffer Z=68.3), N-fixation genes are moderately core (63.4%; Stouffer Z=3.2), and metal-handling genes span the core–accessory boundary (copA 56.8%, corA 73.5%, feoB 30.0%, HMA 23.6%).
 
@@ -63,6 +63,8 @@ Species-level presence was scored as ≥1 gene cluster matching the annotation c
 | P × N | 2,414 | 0.107 | 0.065 | 1.90 | 1.3×10⁻²⁹ | 10.7 |
 | Phz-operon × P | 63 | 0.003 | 0.024 | ∞ | 1.5×10⁻⁶ | 4.0 |
 | N × Phz-operon | 0 | 0.000 | −0.016 | 0.00 | 2.4×10⁻³ | — |
+
+*Table 1. "Phz-operon" = species with ≥3 distinct phz gene families (63 species). The broader Phenazine group (any phz gene ≥1, 10,308 species) is reported separately below.*
 
 All group pairs except N × Phz-operon show significant positive co-occurrence. The N × Phz-operon depletion (0/63 phenazine operon carriers are diazotrophs) reflects the concentration of phenazine operons in non-diazotrophic Actinomycetota (Streptomycetaceae) and non-diazotrophic Pseudomonas lineages.
 
@@ -198,7 +200,7 @@ The core/accessory analysis reveals that macro-micro nutrient coupling operates 
 
 ### Phenazine operon carriers as the extreme case
 
-The 63 species with true phenazine operons (≥3 phz genes) represent the most extreme co-occurrence: 100% encode both P-acquisition and metal-handling genes. Their taxonomic distribution — dominated by soil Actinomycetota and Pseudomonadota — is precisely the ecological context where the McRose-Newman reductive dissolution mechanism would operate. The *Xenorhabdus* clade (6 species) is a notable exception: these insect-pathogenic bacteria likely use phenazines for antimicrobial competition rather than mineral dissolution, illustrating functional convergence of the same biosynthetic pathway across different ecological strategies.
+The 63 species with true phenazine operons (≥3 phz genes) represent the most extreme co-occurrence: 100% encode both P-acquisition and metal-handling genes. While statistically significant (Fisher p=9.4×10⁻³, permutation Z=2.3), this result should be interpreted against the 91.7% background prevalence of metal-handling genes — the probability that all 63 carriers encode metal genes by chance is approximately 0.917⁶³ ≈ 0.004, so the signal is real but modest in magnitude. Their taxonomic distribution — dominated by soil Actinomycetota and Pseudomonadota — is precisely the ecological context where the McRose-Newman reductive dissolution mechanism would operate. The *Xenorhabdus* clade (6 species) is a notable exception: these insect-pathogenic bacteria likely use phenazines for antimicrobial competition rather than mineral dissolution, illustrating functional convergence of the same biosynthetic pathway across different ecological strategies.
 
 ### Negative associations are informative
 

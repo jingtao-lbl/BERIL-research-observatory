@@ -48,6 +48,8 @@ python src/08_forest_plot.py
 
 Steps 1 and 7 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 2–6 and 8 run locally on the CSV outputs in `data/`.
 
+**Notebooks (NB01–NB07)** are inspection and display notebooks that load pre-computed CSVs from `data/`. They visualize and summarize results but do not perform primary analysis. The primary analysis code is in `src/*.py`. Re-running a notebook (e.g., `NB01_gene_family_extraction.ipynb`) does not re-query BERDL — it renders the cached CSV outputs.
+
 ## Authors
 
 - Jing Tao (jingtao-lbl), Lawrence Berkeley National Laboratory

@@ -1847,6 +1847,7 @@ The sections below were extracted from `docs/schemas/` before deletion. Each sec
 - `pangenome` references 12 species clades that are not in `gtdb_species_clade` (orphan single-genome species/symbionts) — anti-join may be needed.
 - `gene_genecluster_junction` has 141 orphan genes vs `gene` — `INNER JOIN` will silently drop them.
 - `ncbi_env` is EAV (entity-attribute-value): pivot or filter by `harmonized_name`, do not assume one row per sample.
+- `bakta_annotations.gene` name capitalization is not fully standardized across genomes — querying by exact case (e.g., `ba.gene = 'pstA'`) may miss annotations stored as `PstA` or `PSTA`. Use `LOWER(ba.gene) = 'psta'` for case-insensitive matching when querying gene-name-based families. KEGG KO and PFAM domain lookups are unaffected. [macro_micro_nutrient_cocycling]
 - `pangenome_build_protocol`, `genomad_mobile_elements`, `IMG_env` are referenced by other tables / project docs but do not exist in BERDL — `protocol_id` is a dangling reference.
 - Pagination requires `ORDER BY`; `LIMIT/OFFSET` without ordering returns inconsistent results.
 - REST API returns transient 503 ("cannot schedule new futures after shutdown") and 504 errors on large queries — retry, or break into per-species batches.
