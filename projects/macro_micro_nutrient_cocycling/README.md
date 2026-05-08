@@ -10,7 +10,7 @@ Completed — Significant co-occurrence of macro-nutrient acquisition and metal-
 
 ## Overview
 
-Across 27,682 GTDB species pangenomes from `kbase_ke_pangenome`, we find significant co-occurrence of P-acquisition and metal-handling genes (phi=0.110, OR=2.3, p=1.3×10⁻⁶⁵), N-fixation and metal-handling genes (phi=0.107, OR=4.0, p=1.5×10⁻⁸⁷), and complete overlap of phenazine operon carriers with metal-handling genes (63/63 species, 100%). The 63 phenazine operon carriers are concentrated in soil Actinomycetota and rhizosphere Pseudomonadota, consistent with the McRose-Newman model of phenazine-mediated Fe(III)-oxyhydroxide dissolution as a joint P and trace-metal mobilization strategy.
+Across 27,682 GTDB species pangenomes from `kbase_ke_pangenome`, we find significant co-occurrence of P-acquisition and metal-handling genes (phi=0.110, OR=2.3, p=1.3×10⁻⁶⁵), N-fixation and metal-handling genes (phi=0.088, OR=10.1, p=1.3×10⁻⁷¹), and complete overlap of phenazine operon carriers with metal-handling genes (63/63 species, 100%). The 63 phenazine operon carriers are concentrated in soil Actinomycetota and rhizosphere Pseudomonadota, consistent with the McRose-Newman model of phenazine-mediated Fe(III)-oxyhydroxide dissolution as a joint P and trace-metal mobilization strategy.
 
 ## Quick Links
 
