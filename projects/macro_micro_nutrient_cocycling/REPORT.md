@@ -151,19 +151,19 @@ All eight species encode both P-acquisition and metal-handling genes, consistent
 
 ### 6. Environmental stratification
 
-Environmental metadata from `ncbi_env` was joined to 27,009 species via genome biosample accessions and classified into broad categories. Species counts in the table below reflect those with both environment assignments and gene family data; 8 species with environment assignments lacked complete gene family annotations and were excluded from co-occurrence tests (e.g., soil: 3,406 of 3,409; plant: 1,134 of 1,135).
+Environmental metadata from `ncbi_env` was joined to 27,017 species via genome biosample accessions and classified into broad categories. Of these, 27,009 had complete gene family annotations for co-occurrence testing; the remaining 8 were excluded (e.g., soil: 3,406 of 3,409; plant: 1,134 of 1,135). The per-environment species counts sum to 27,009 rather than 27,017 because the 8 excluded species span multiple environments. Benjamini-Hochberg FDR correction was applied across all 21 Fisher tests (7 environments × 3 pairs); q-values are reported alongside raw p-values.
 
-| Environment | n species | P×Metal log-OR | P×Metal p | N×Metal log-OR | N×Metal p |
+| Environment | n species | P×Metal log-OR | P×Metal q | N×Metal log-OR | N×Metal q |
 |-------------|----------|---------------:|----------:|---------------:|----------:|
-| Soil/rhizosphere | 3,406 | +1.34 | 1.9×10⁻⁹ | +0.36 | 0.17 |
-| Plant-associated | 1,134 | +1.51 | 1.3×10⁻⁶ | +0.94 | 0.064 |
-| Marine | 3,449 | +0.26 | 7.8×10⁻³ | +1.37 | 4.2×10⁻²³ |
-| Freshwater/engineered | 2,059 | +1.31 | 6.6×10⁻⁹ | +1.46 | 1.5×10⁻⁵ |
-| Human-associated | 3,497 | +1.37 | 3.4×10⁻²⁰ | +0.97 | 7.1×10⁻⁶ |
-| Animal-associated | 840 | +0.23 | 0.39 | +2.27 | 2.1×10⁻⁷ |
-| Other (unclassified) | 12,624 | +1.00 | 5.4×10⁻³⁹ | +1.49 | 1.7×10⁻³⁷ |
+| Soil/rhizosphere | 3,406 | +1.34 | 8.1×10⁻⁹ | +0.36 | 0.27 |
+| Plant-associated | 1,134 | +1.51 | 3.3×10⁻⁶ | +0.94 | 0.11 |
+| Marine | 3,449 | +0.26 | 0.015 | +1.37 | 3.0×10⁻²² |
+| Freshwater/engineered | 2,059 | +1.31 | 2.3×10⁻⁸ | +1.46 | 3.0×10⁻⁵ |
+| Human-associated | 3,497 | +1.37 | 1.8×10⁻¹⁹ | +0.97 | 1.7×10⁻⁵ |
+| Animal-associated | 840 | +0.23 | 0.54 | +2.27 | 6.2×10⁻⁷ |
+| Other (unclassified) | 12,624 | +1.00 | 1.1×10⁻³⁷ | +1.49 | 1.8×10⁻³⁶ |
 
-P × Metal co-occurrence is significant across all environments except animal-associated (p=0.39). The strongest P × Metal effects are in plant-associated (log-OR=+1.51) and soil/rhizosphere (log-OR=+1.34) environments, consistent with the prediction that P-metal coupling is most relevant where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. N × Metal shows a different pattern: the strongest effect is in marine (log-OR=+1.37) and animal-associated (log-OR=+2.27) environments, while soil/rhizosphere shows a non-significant trend (log-OR=+0.36, p=0.17). Phenazine operon × Metal associations were non-significant in all environments due to the rarity of operon carriers (0–29 per environment). See Figure 3 for a visual comparison of P×Metal and N×Metal log-ORs across environments.
+P × Metal co-occurrence is significant (BH q<0.05) across all environments except animal-associated (q=0.54). The strongest P × Metal effects are in plant-associated (log-OR=+1.51) and soil/rhizosphere (log-OR=+1.34) environments, consistent with the prediction that P-metal coupling is most relevant where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. N × Metal shows a different pattern: the strongest effect is in marine (log-OR=+1.37) and animal-associated (log-OR=+2.27) environments, while soil/rhizosphere (q=0.27) and plant-associated (q=0.11) show non-significant trends after FDR correction. Phenazine operon × Metal associations were non-significant in all environments due to the rarity of operon carriers (0–29 per environment). See Figure 3 for a visual comparison of P×Metal and N×Metal log-ORs across environments.
 
 ### 7. Per-phylum forest plot
 
@@ -194,7 +194,7 @@ The core/accessory analysis reveals that macro-micro nutrient coupling operates 
 
 1. **P-acquisition: core-genome coupling.** Phosphate scavenging genes are stably integrated into species' core metabolic identity (70.7% core). This reflects the universal, constitutive need for phosphorus and the selective advantage of maintaining reliable P-acquisition machinery.
 
-2. **Phenazine biosynthesis: clade-specific coupling.** Phenazine operons are concentrated in specific soil and rhizosphere lineages (63 species in 9 families), where they are moderately core (phzF 65%, phzS 66%). This represents an ecologically specialized coupling — the McRose-Newman reductive dissolution mechanism — that is stable within the lineages that carry it but absent from most of the bacterial tree.
+2. **Phenazine biosynthesis: clade-specific coupling.** Phenazine operons are concentrated in specific soil and rhizosphere lineages (63 species in 9 families), where they are moderately core (phzF 65%, phzS 66%). This represents an ecologically specialized coupling — the McRose-Newman reductive dissolution mechanism — that is stable within the lineages that carry it but absent from most of the bacterial tree. Notably, the per-species core enrichment analysis shows that phenazine genes are not preferentially core relative to metal genes in most co-encoding species (median OR=0.333, only 26.8% of species show OR>1, Stouffer Z=2.6) — weaker than P-acquisition (Z=68.3), consistent with phenazine genes being ecologically specialized rather than constitutively maintained.
 
 3. **N-fixation: horizontally acquired coupling.** Nitrogenase genes (nifH/nifD) show lower core fractions (63.4%) than P-acquisition genes, consistent with the well-documented horizontal transfer of nif operons between species via symbiosis islands and integrative conjugative elements. The coupling of N-fixation to metal handling is real (OR=10.1, nearly all diazotrophs carry metal genes) but operates through a genomically flexible, horizontally mobile mechanism rather than stable vertical inheritance.
 
