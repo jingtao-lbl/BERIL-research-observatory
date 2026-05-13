@@ -1,6 +1,6 @@
 ---
 reviewer: BERIL Automated Review (Claude, claude-sonnet-4-6)
-date: 2026-05-08
+date: 2026-05-13
 project: macro_micro_nutrient_cocycling
 ---
 
@@ -8,83 +8,101 @@ project: macro_micro_nutrient_cocycling
 
 ## Summary
 
-This is a rigorous, well-executed genome-scale analysis of macro-nutrient and trace-metal gene co-occurrence across 27,682 GTDB species pangenomes. The project is thoroughly documented: the research question is specific and testable, the statistical approach is multi-layered (Fisher's exact test, phi coefficient, Jaccard index, permutation null, BH FDR correction, Stouffer meta-analysis, phylogenetic stratification, and environmental stratification), and the limitations section is unusually candid and detailed. The src/notebook split — where `src/*.py` scripts perform the primary analysis and notebooks display pre-computed CSVs — is unconventional but clearly documented in the README and each notebook header. All seven notebooks have saved outputs, three publication-quality figures exist in `figures/`, and the reproduction path is clearly delineated (Spark-required steps 1 and 7 vs. locally-runnable steps 2–6 and 8). The main areas for improvement are: (1) a subtle inconsistency between the notebook enrichment ratios and the log-ORs reported in the REPORT, (2) several gene families included in the analysis (pstB, phnD) are omitted from Figure 1 Panel B without explanation, (3) the 1,000-permutation limit (p_min ≈ 0.001) means the most significant signals are reported identically and conflated in the permutation column, and (4) phylogenetic non-independence remains the most consequential unaddressed confound.
+This is a mature, rigorous analysis that successfully tests whether bacterial pangenomes co-encode macro-nutrient acquisition and trace-metal handling genes at rates exceeding chance. Working across 27,682 GTDB species pangenomes from `kbase_ke_pangenome`, the project builds a genuinely impressive multi-layered evidentiary case: group-level co-occurrence with Fisher's exact test and permutation null, FDR-corrected pairwise analysis of 72 gene pairs, Stouffer meta-analysis of core/accessory structure, phylum- and environment-stratified effect sizes, phylogenetic logistic regression on the full 26,517-tip GTDB R214 tree, an operon-distance test that rules out physical gene linkage, and an independent validation via Wang et al. 2021. All 14 significant pairs survive phylogenetic correction (0% collapse rate). The REPORT.md is detailed, internally consistent, and thoroughly acknowledges limitations. The project's primary weaknesses are reproducibility gaps: the README's `## Reproduction` section documents only Steps 1–8 (src/01–08), leaving the entire extended analysis (src/09–15: R-based phylogenetic correction, operon-distance test, Wang validation, and their figures) unreachable by the reproduction guide, and there is no R environment specification to match the Python `requirements.txt`. These gaps do not undermine the scientific conclusions, but they would prevent an independent researcher from reproducing the full pipeline.
 
 ---
 
 ## Methodology
 
-**Research question and hypothesis:** Both are clearly stated and precisely operationalised. H1 (positive co-occurrence exceeding a permutation null) and H0 (no excess co-occurrence) are testable and are tested. The pivot from `kescience_fitnessbrowser` (no P-starvation experiments) to `kbase_ke_pangenome` is documented in the revision history.
+**Research question and hypothesis**: Both are precisely stated and testable. H1 ("presence of P-acquisition, N-fixation, and phenazine biosynthesis gene families is positively associated with metal-handling gene families, beyond a permutation null") is directly tested by the analytical pipeline. The literature context (McRose & Newman 2021, Edayilam et al. 2018) cleanly motivates the hypothesis.
 
-**Data source:** `kbase_ke_pangenome` with 132.5M gene clusters and GTDB R214 taxonomy. Tables used (`gene_cluster`, `bakta_annotations`, `bakta_pfam_domains`, `gtdb_species_clade`) are identified. The 20-species gap between the 27,702 GTDB total and 27,682 retrieved is noted (species lacking any Bakta annotations, confirmed by the JOIN structure in `src/01`).
+**Analytical approach**: The layered strategy is well-suited to the question. Using both permutation and parametric tests as complementary checks is appropriate. The phylogenetic logistic regression choice (`phylolm::phyloglm(method="logistic_MPLE")`) is sound for binary traits on a large tree — MPLE avoids the O(n²) covariance matrix that would otherwise make the full 26,517-tip tree computationally intractable. The decision to estimate Pagel's lambda on a 5,000-tip stratified subsample (due to memory constraints) rather than the full tree is a pragmatic limitation, transparently documented.
 
-**Gene family definitions:** The 23 families use a sensible mix of annotation types (KEGG KO for nifH/nifD/copA/phzF/phzS, PFAM for phoD/nifH_pfam/feoB/HMA, gene name for pst/phn/corA/phzA–M). The sensitivity check comparing KO-only nifH/nifD (2,746 species) against PF00142-inclusive (5,872 species) is a highlight — it is reported transparently, its biological meaning is explained, and it correctly motivates excluding PF00142 from the primary analysis.
+**Gene family definitions**: The KEGG KO / gene-name / PFAM-prefix layered annotation approach is reasonable and appropriate. The distinction between primary (KO-only) and broad (PF00142) N-fixation definitions — and the explicit exclusion of the broader definition from primary analysis — is scientifically sound and properly justified. The ≥3-gene phenazine operon threshold is explained and sensitivity-checked.
 
-**Phenazine operon threshold:** The ≥3 distinct phz gene heuristic is justified empirically (≥2 gives 1,125 species; ≥4 gives 34), robustly documented in Limitation #6, and acknowledged as anchored on the canonical *Pseudomonas* operon at the expense of Actinomycete detection (Limitation #7).
+**Data sources**: `kbase_ke_pangenome` (132.5M gene clusters, 27,682 species, GTDB R214) is clearly identified. Table-level details (gene_cluster, bakta_annotations, bakta_pfam_domains, gtdb_species_clade) are named.
 
-**Statistical approach:** Permutation null (1,000 shuffles, seed 42) is appropriate. BH FDR correction is correctly implemented in both `src/02` (ascending-rank step-down) and `src/07` (descending step-down). Stouffer meta-analysis of per-species Fisher tests is appropriate for the core/accessory question, though the nuances of its interpretation for the Phz group (outlier-driven aggregate) are well explained in the REPORT.
-
-**Reproducibility:** The README clearly separates Spark-required from local steps, explains the src/notebook architecture, and lists expected outputs. A reader can reproduce the local steps from the cached CSVs without cluster access. The `requirements.txt` lists all dependencies (numpy, pandas, scipy, matplotlib, pyspark, berdl_notebook_utils).
+**Reproducibility of methods**: Results in REPORT.md are cross-checked against NB01–NB07 outputs and data/CSV files — the numbers are consistent throughout.
 
 ---
 
 ## Code Quality
 
-**SQL correctness (src/01):** The main query skips PFAM gene families (`if 'EXISTS' in condition: continue`) and handles them in separate PFAM queries merged back via `pd.DataFrame.loc`. This two-pass approach is correct. PFAM IDs use `LIKE 'PFxxxxx.%'` to match versioned IDs, which is the correct pattern per the BERDL schema. Species absent from the PFAM query naturally receive 0 via `fillna(0)`.
+**SQL queries** (`src/01_extract_gene_families.py`): The CASE WHEN / GROUP BY pattern for generating the species-level presence/absence matrix is correct. The two-pass approach (gene-name / KO pass, then separate PFAM subqueries) avoids a three-way join that would be prohibitively expensive at 132.5M gene clusters. The `LIKE 'PFxxxxx.%'` pattern for PFAM versioning is consistent with the pitfalls.md guidance on versioned PFAM IDs. The `fillna(0)` call after merging PFAM results is appropriate.
 
-**Potential issue — pstB/phnD omitted from Figure 1 Panel B:** `src/05_figure.py` and `NB04` both build Panel B (core fraction bars) using `gene_order = ['phoA', 'phoD_pfam', 'pstA', 'pstC', 'pstS', 'phnC', 'phnE', ...]`, silently dropping `pstB` and `phnD` from the visualisation. Both genes are included in the analysis (`groups['P_acquisition']` in `src/02`), and `NB03 cell_4` prints their core fractions. The omission is not explained in a figure caption or code comment. The REPORT and RESEARCH_PLAN describe 9 P-acquisition families but the figure shows 7. Readers comparing the figure to the text will notice the discrepancy.
+**Statistical methods** (`src/02_cooccurrence_stats.py`): Fisher's exact test, phi coefficient, Jaccard, and permutation null are all implemented correctly. The BH FDR implementation (manual, step-down) is correct. The Stouffer Z meta-analysis (`src/03`) is appropriately applied as a directional aggregate test.
 
-**Gene name case sensitivity (Limitation #9):** Appropriately disclosed. The impact is limited to the gene-name-based families (pst, phn, phz, corA); KO and PFAM families are unaffected.
+**R scripts** (`src/09_phylo_signal.R`, `src/10_phylo_logistic.R`): The phylogenetic signal estimation with stratified-by-phylum subsampling (src/09) is well-designed — it avoids both overrepresenting large phyla and discarding small ones. The phyloglm call uses `btol=50, log.alpha.bound=8` to improve convergence stability, and convergence is checked in the output. Both R scripts accept command-line arguments cleanly, enabling batch execution.
 
-**Enrichment vs. log-OR discrepancy in NB06:** The notebook's printed summary table shows very low enrichment ratios (e.g., human-associated P×Metal: `enrich=1.02x`) alongside large log-ORs (`log-OR=+1.374`). These are not inconsistent — the enrichment ratio (n_both/expected_marginal) reflects ceiling effects when both gene families approach 100% prevalence, while log-OR captures the association structure in the 2×2 table — but a reader seeing only the notebook output will find the two metrics confusing without an explanatory note. The REPORT correctly uses log-OR for environmental comparisons, but the notebook would benefit from a markdown cell explaining why `enrich≈1.0x` does not contradict `log-OR≈1.4`.
+**Operon-distance test** (`src/11_operon_distance.py`): The `parse_gene_id` function correctly extracts the ordinal from the `{contig}_{ordinal}` BERDL gene_id format. Cross-contig pairs are excluded from distance computation but included in the same-contig fraction denominator. The permutation correctly shuffles ordinals within each species (preserving contig membership) rather than globally, which is the appropriate null.
 
-**Permutation resolution:** With N=1,000 permutations, the minimum representable p is 1/1,001 ≈ 0.001. This is disclosed in the REPORT. However, the permutation p-values for P×Metal (0.0010), N×Metal (0.0010), and P×N (0.0010) are reported identically — all three "max out" the test. The REPORT correctly routes readers to the permutation Z-scores instead, but the permutation p column in the main results table adds little information for signals of this magnitude. A note flagging this explicitly in the REPORT table footnote or in NB02 would help prevent misreading the identical values as equivalent evidence strength.
+**Notebook organization** (NB01–NB07): All seven notebooks follow a consistent pattern: markdown header describing what the notebook does and what script to run for re-analysis, data load from cached CSV, display / summary. Cells are logically ordered. NB01 and NB02 both have full text outputs. One minor code quality issue: in NB04 cell_3, `from matplotlib.patches import Patch` is imported once at the top of the cell and then imported again inside the Panel D block — a redundant import that causes no harm but could be cleaned up.
 
-**Stouffer meta-analysis for Phz group (src/03):** The REPORT provides an unusually detailed and correct explanation of why the Stouffer Z=2.6 for Phz genes is outlier-driven and should not be interpreted as indicating that phenazine genes are generally more core than metal genes (median OR=0.333, frac_enriched=0.268). This caveat is hard to find: it is buried deep in the Interpretation section. A brief caution note in `NB03` alongside the summary table output would improve discoverability.
-
-**Pitfall check:** The most relevant documented pitfall (gene name case sensitivity) is directly acknowledged as Limitation #9. The project does not use ENIGMA strain matching, fitnessbrowser, or Web of Microbes, so those pitfalls do not apply.
+**Pitfall awareness**: The project correctly uses `LIKE 'PFxxxxx.%'` for PFAM ID matching (avoiding the fixed-version pitfall). The gene-name case sensitivity issue (e.g., `pstA` vs `PstA`) is identified as Limitation 9 in the REPORT — but no sensitivity check quantifying the potential miss rate was performed. Given that pst and phz families are gene-name-based (no KO backup for pstA/B/C/S), a simple case-insensitive comparison or a spot-check of alternative capitalizations in the database would strengthen confidence in the coverage estimates.
 
 ---
 
 ## Findings Assessment
 
-**Are conclusions supported?** Yes. The central finding — significant positive co-occurrence of P-acquisition and N-fixation genes with metal-handling genes (P×Metal: phi=0.110, OR=2.3, perm Z=17.7; N×Metal: phi=0.088, OR=10.1, perm Z=14.7) — is supported by multiple complementary tests. The 64/72 FDR-significant individual gene pairs strengthen the group-level result. The positive control species check provides external biological validation.
+**Conclusions supported by data**: Yes. The group-level co-occurrence table in REPORT Section 1 is reproduced verbatim from NB02 output. All phi, OR, and Fisher p values match the CSV outputs. The phylogenetic correction results (Table 5) are consistent with data/phylo/phylo_logistic.csv. The 100% phenazine operon × metal overlap is confirmed in NB01. The operon-distance result (median 910 vs null 249, Z=304) is confirmed by data/operon_distance/permutation_summary.csv and observed_dists.npy.
 
-**Phenazine operon finding (100% overlap, 63/63):** The REPORT correctly contextualises this against the 91.7% background prevalence of metal-handling genes and provides the back-of-envelope calculation (0.917^63 ≈ 0.004). The Fisher p=9.4×10⁻³ and permutation Z=2.3 are statistically real but modest, which is honestly reported. The REPORT's caution ("statistically significant but modest in magnitude") is appropriate.
+**Effect size interpretation**: The REPORT's discussion of "modest phi at the pan-bacterial scale" is appropriately nuanced. The three-level effect size framing (group phi → per-pair OR → environment-stratified log-OR) is well-reasoned and avoids over-claiming.
 
-**Negative associations:** The pstC/S–feoB depletion (phi as low as −0.256) is the most concrete result in the analysis and is given appropriate ecological interpretation (aerobic/oligotrophic Pst users vs. microaerobic FeoB users). The phzF–feoB anti-correlation (phi=−0.163) is a genuinely novel observation that reinforces the McRose-Newman model without over-claiming.
+**Limitations acknowledged**: Thorough. Nine limitations are listed covering expression-level inference, annotation sensitivity, PFAM PF00142 inflation, phylogenetic subsampling, ecological vs expression inference, phenazine operon definition, actinomycete under-detection, environmental classification keyword priority, and gene name case sensitivity. The actinomycete phenazine under-detection limitation (Limitation 7) is unusually candid and well-supported by the S. coelicolor positive control.
 
-**Core/accessory findings:** The three-genomic-strategy framework (P-acquisition: core-stable; Phz: clade-specific; N-fixation: HGT-flexible) is interpretively sound and maps onto known biology. The phoD exception (17.2% core, consistent with mobile-element carriage) adds specificity.
+**Negative associations**: The pstC × feoB depletion (phi=−0.256, strengthened by phylogenetic correction) is correctly interpreted as a genuine ecological niche separation rather than an artifact, and the redox-geochemical mechanism is plausibly argued.
 
-**Phylogenetic non-independence:** Limitation #4 correctly identifies this as the key unaddressed confound. The permutation test controls for marginal frequencies but not phylogenetic autocorrelation. The REPORT notes this and lists phylogenetic logistic regression as the first Future Direction. The current analysis is scientifically meaningful at genome-discovery scale, but downstream work building on this result will need to address it.
+**Incomplete or placeholder analysis**: None. All sections in REPORT.md are fully filled in with actual results.
 
-**Environmental stratification:** The finding that P×Metal is strongest in plant-associated and soil environments while N×Metal is strongest in marine and animal-associated environments is the most ecologically interpretive result and is directly testable against field data. The REPORT is appropriately cautious about the large "other" category (12,628 species, 46%) and the keyword-priority misclassification risk (Limitation #8).
+**Wang 2021 validation**: The non-replication of the Burkholderiaceae-specific signal is clearly explained (scope difference: soil isolate enrichment vs. pan-GTDB) and is not over-claimed as a contradiction of Wang et al. 2021.
 
-**Limitations acknowledged:** All major limitations are enumerated (9 items). This is a strength.
+**One minor inconsistency**: REPORT.md states the P × Metal animal-associated result is "q=0.54" while the NB06 BH-corrected output shows `q=0.543`. These match. However, the REPORT's Table 4 gives `q` for soil/rhizosphere P×Metal as `8.1×10⁻⁹`, while NB06 shows `q=0.000` (rounded). The NB06 FDR computation rounds `q<0.001` to 0.000; the REPORT correctly converts this to `8.1×10⁻⁹` using the raw Fisher p — this is consistent but the derivation path is not stated.
 
 ---
 
 ## Suggestions
 
-1. **[Figure 1, Panel B — medium priority] Document the exclusion of pstB and phnD.** Either include them in the panel or add a code comment and figure caption note explaining they were omitted for space. Readers familiar with the 9-family P-acquisition definition will notice the 2-gene gap between the text and the figure.
+1. **[Critical] Extend the `## Reproduction` section in README.md to cover src/09–15.** Steps 9–15 (phylogenetic signal, phylogenetic logistic regression, operon-distance test, Wang validation, and the associated figures) are entirely absent from the reproduction guide. A reader following the README would reproduce only the first half of the analysis. The extension should specify: (a) that src/09 and src/10 require R with the `r_phylo` conda environment, (b) the command-line arguments for the R scripts (tree path, trait path, pairs CSV, output path), (c) that src/11 requires on-cluster Spark, and (d) that src/12–15 run locally from cached CSV outputs. Example sketch:
+   ```bash
+   # Step 9: Phylogenetic signal (R, r_phylo env, ~20 min)
+   conda run -n r_phylo Rscript src/09_phylo_signal.R \
+     data/phylo/bac120_r214_pruned.tree data/species_gene_families.csv \
+     data/species_taxonomy.csv data/phylo/phylo_signal.csv 5000
 
-2. **[NB06 — medium priority] Add a markdown cell explaining the enrichment-vs-log-OR discrepancy.** A single sentence — e.g., "Enrichment ratios near 1.0 are expected when both gene groups approach universal prevalence; log-OR better captures the association structure in the full 2×2 table" — would prevent the apparent contradiction from confusing readers inspecting the notebook output.
+   # Step 10: Phylogenetic logistic regression (R, r_phylo env, ~2 hr)
+   conda run -n r_phylo Rscript src/10_phylo_logistic.R \
+     data/phylo/bac120_r214_pruned.tree data/species_gene_families.csv \
+     data/phylo/pair_definitions.csv data/phylo/phylo_logistic.csv
 
-3. **[REPORT.md / NB02 — low priority] Flag the permutation resolution saturation.** The three pairs with perm_p=0.0010 saturate the test and are indistinguishable in that column. A table footnote such as "Permutation p bounded at 1/(N+1)≈0.001 for N=1,000 permutations; the Z-scores (17.7, 14.7, 10.7) differentiate these signals" would prevent readers from treating the identical p-values as equivalent strength of evidence.
+   # Step 11: Operon-distance test (requires Spark)
+   python src/11_operon_distance.py
 
-4. **[NB03 — low priority] Surface the Stouffer Phz interpretation caveat closer to the table.** The explanation of why Stouffer Z=2.6 for Phz genes is outlier-driven (median OR=0.333, frac_enriched=0.268) is currently only in the Interpretation section of REPORT.md. A one-sentence markdown cell below the `core_enrichment_summary` table in NB03 would catch readers who inspect notebooks but not the full REPORT.
+   # Steps 12–15: Wang validation and figures (local)
+   python src/12_wang2021_validation.py
+   python src/13_figure4_phylo_correction.py
+   python src/14_figure5_operon_distance.py
+   python src/15_figure6_wang2021.py
+   ```
 
-5. **[src/01 — low priority] Document the two-pass PFAM strategy inline.** The `if 'EXISTS' in condition: continue` skip is not explained with a comment. A brief note explaining that PFAM subquery families are handled in separate queries and merged back (for Spark query plan reasons) would help future developers understand the architecture.
+2. **[Important] Add an R environment specification.** The Python `requirements.txt` lists Python package versions, but the R analysis (src/09, src/10) depends on `phylolm` (v2.6.5) and `phytools` (v2.3-0) — version-sensitive packages that can produce different numerical results across versions. Add either `data/phylo/r_session_info.txt` (output of `sessionInfo()`) or an `r_requirements.txt` file listing R package versions. The REPORT already mentions these version numbers; surfacing them as a reproducible artifact closes the gap.
 
-6. **[NB07 — low priority] Print n_species alongside log-OR in the top-effects summary.** Several phyla have p=1.00e+00 with large log-OR point estimates (e.g., Deinococcota, +4.654). These reflect small sample sizes or extreme cell values, but the current printout does not show n. Adding n to the per-phylum summary would clarify whether these are underpowered estimates rather than genuine large effects.
+3. **[Important] Add display notebooks for the extended analyses (NB08+).** The existing NB01–NB07 cover src/01–08 and each loads pre-computed CSVs for display. Applying the same pattern to the extended analyses would provide inspection points for the phylogenetic correction (data/phylo/phylo_logistic.csv, data/phylo/phylo_signal.csv), operon-distance permutation (data/operon_distance/), and Wang validation (data/wang2021/). Even minimal notebooks (load CSV → display table → show figure) would allow reviewers to verify results without re-running multi-hour R jobs. This is also the pattern that the pitfalls.md entry on "Commit Notebooks Alongside Their Artifacts" explicitly recommends.
 
-7. **[Future work — informational] Quantify the phylogenetic non-independence concern.** Limitation #4 correctly identifies the problem but gives readers no sense of scale. The Future Directions section could suggest a specific bounded approach: e.g., applying Moran's I to the species-level binary vectors using the GTDB phylogenetic distance matrix, to estimate what fraction of the observed phi=0.110 is attributable to shared ancestry before investing in full phylogenetic logistic regression.
+4. **[Important] Rename `figures/forest_plot.png` to `figures/figure2_forest_plot.png`** (and update REPORT.md and NB07 references accordingly) to match the numbered figure naming scheme used by all other figures. Currently figures are named figure1_*, figure3_*, figure4_*, figure5_*, figure6_* — the forest plot is the odd one out. This is a minor naming issue but can confuse readers navigating the figures/ directory.
+
+5. **[Minor] Quantify the gene-name case sensitivity miss rate.** Limitation 9 correctly identifies that `ba.gene = 'pstA'` uses exact case matching. A one-off check of how many gene clusters in `bakta_annotations` match `LOWER(ba.gene) = 'psta'` but not `ba.gene = 'pstA'` would bound the potential miss rate. If the rate is <1%, that is worth stating explicitly to reassure readers. If it is non-trivial, a case-insensitive query (`LOWER(ba.gene) = 'psta'`) should be used in src/01.
+
+6. **[Minor] Update `beril.yaml` status from `analysis` to `complete`.** The current status field reads `status: analysis`, which typically indicates in-progress work. Given the project is described as "Completed" in README.md and has a finalized REPORT.md, the beril.yaml field should reflect the project's actual state.
+
+7. **[Minor] Remove the redundant `from matplotlib.patches import Patch` import in NB04 cell_3.** The import appears once at the top of the cell (line ~4) and again inside the Panel D code block. The second import is unreachable duplication.
+
+8. **[Nice-to-have] Extend the operon-distance test to N-fixation × Metal pairs.** The current test covers only P × M gene pairs (src/11 CASE WHEN block includes pstA/B/C/S, phnC/D/E, and metal families, but omits nifH/nifD). Since N × Metal shows the strongest pan-bacterial OR (10.1), verifying that nifH/nifD are also not physically co-located with metal-handling genes would further strengthen the "ecological, not genomic linkage" conclusion. This would require a small extension to the bakta_targets temp view in src/11.
 
 ---
 
 ## Review Metadata
 
 - **Reviewer**: BERIL Automated Review (Claude, claude-sonnet-4-6)
-- **Date**: 2026-05-08
-- **Scope**: README.md, RESEARCH_PLAN.md, REPORT.md, 7 notebooks (NB01–NB07), 8 source scripts (src/01–08), 13 data files, 3 figures, requirements.txt, beril.yaml, docs/pitfalls.md
+- **Date**: 2026-05-13
+- **Scope**: README.md, RESEARCH_PLAN.md, REPORT.md, references.md, beril.yaml, requirements.txt, 7 notebooks (NB01–NB07 with cell outputs), 15 source files (src/01–15), docs/pitfalls.md, 6 figures, 18 data files/directories
 - **Note**: This review was generated by an AI system. It should be treated as advisory input, not a definitive assessment.

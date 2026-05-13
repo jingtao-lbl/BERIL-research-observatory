@@ -44,11 +44,39 @@ python src/07_environmental_stratification.py
 
 # Step 8: Forest plot (Figure 2)
 python src/08_forest_plot.py
+
+# Step 9: Phylogenetic signal — Pagel's lambda (requires R env)
+conda run -n r_phylo Rscript src/09_phylo_signal.R \
+  data/phylo/bac120_r214_pruned.tree \
+  data/species_gene_families.csv \
+  data/phylo/phylo_signal.csv
+
+# Step 10: Phylogenetic logistic regression (requires R env)
+conda run -n r_phylo Rscript src/10_phylo_logistic.R \
+  data/phylo/bac120_r214_pruned.tree \
+  data/species_gene_families.csv \
+  data/phylo/pair_definitions.csv \
+  data/phylo/phylo_logistic.csv
+
+# Step 11: Operon-distance test (requires on-cluster Spark access)
+python src/11_operon_distance.py
+
+# Step 12: Wang 2021 phytase-siderophore validation (requires on-cluster Spark access)
+python src/12_wang2021_validation.py
+
+# Step 13: Figure 4 — phylogenetic correction scatter
+python src/13_figure4_phylo_correction.py
+
+# Step 14: Figure 5 — operon distance distribution
+python src/14_figure5_operon_distance.py
+
+# Step 15: Figure 6 — Wang 2021 family-level co-occurrence
+python src/15_figure6_wang2021.py
 ```
 
-Steps 1 and 7 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 2–6 and 8 run locally on the CSV outputs in `data/`.
+Steps 1, 7, 11, and 12 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 9–10 require an R environment with `phylolm` and `phytools` (create via `conda create -n r_phylo -c conda-forge r-base r-ape r-phytools r-phylolm --solver=classic`). All other steps run locally on CSV outputs in `data/`.
 
-**Notebooks (NB01–NB07)** are inspection and display notebooks that load pre-computed CSVs from `data/`. They visualize and summarize results but do not perform primary analysis. The primary analysis code is in `src/*.py`. Re-running a notebook (e.g., `NB01_gene_family_extraction.ipynb`) does not re-query BERDL — it renders the cached CSV outputs.
+**Notebooks (NB01–NB07)** are inspection and display notebooks that load pre-computed CSVs from `data/`. They visualize and summarize results but do not perform primary analysis. The primary analysis code is in `src/*.py`. Re-running a notebook does not re-query BERDL — it renders cached CSV outputs.
 
 ## Authors
 
