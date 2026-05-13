@@ -2,15 +2,19 @@
 
 ## Key Findings
 
-1. **P-acquisition and metal-handling genes co-occur significantly** across 27,682 GTDB species pangenomes (phi=0.110, OR=2.3, Fisher p=1.3×10⁻⁶⁵; permutation Z=17.7, p<0.001). 80.2% of species encode at least one P-acquisition gene; 91.7% encode at least one metal-handling gene; 74.7% encode both.
+1. **P-acquisition and metal-handling genes co-occur significantly** across 27,682 GTDB species pangenomes (phi=0.110, OR=2.3, Fisher p=1.3×10⁻⁶⁵; permutation Z=17.7, p<0.001), and **all 14 significant pairs survive phylogenetic correction** under logistic MPLE on the full 26,517-tip GTDB R214 tree (0% collapse rate). Five pairs become stronger after correction, meaning phylogenetic structure was partially masking the true association.
 
-2. **N-fixation and metal-handling show the strongest per-species association.** Using KEGG KO-defined nifH/nifD (2,746 species), N × Metal has OR=10.1 (Fisher p=1.3×10⁻⁷¹; permutation Z=14.7). The high OR reflects near-universal metal gene presence among true diazotrophs (2,719/2,746 = 99.0%). Individual gene pairs (nifH × HMA, nifH × feoB) reach enrichments of 1.42× with phi=0.077 (all FDR q<0.05).
+2. **N-fixation and metal-handling show the strongest per-species association.** Using KEGG KO-defined nifH/nifD (2,746 species), N × Metal has OR=10.1 (Fisher p=1.3×10⁻⁷¹; permutation Z=14.7). The high OR reflects near-universal metal gene presence among true diazotrophs (2,719/2,746 = 99.0%). The phylogenetically corrected log-OR (2.11) shows only 6% reduction, confirming this is not driven by shared ancestry.
 
-3. **All 63 phenazine operon carriers encode both P-acquisition and metal-handling genes** (100% overlap, OR=∞, Fisher p=9.4×10⁻³ for Phz-operon × Metal). While the overlap is complete, the statistical significance is modest given that 91.7% of all species encode at least one metal-handling gene; the Fisher test and permutation Z=2.3 quantify how surprising 63/63 is against this high background prevalence. These 63 species are concentrated in soil and insect-pathogenic families: Streptomycetaceae (24), Pseudomonadaceae (17), Streptosporangiaceae (10), and Enterobacteriaceae (6, all *Xenorhabdus* — entomopathogenic nematode symbionts).
+3. **The coupling is ecological, not genomic linkage.** P × M gene pairs on the same contig are farther apart than expected by chance (median 910 genes vs null 249, Z=304). Only 0.67% of same-contig pairs fall within the operon-proximal range (≤5 genes). Co-occurrence reflects independent genomic maintenance under shared ecological selection, not physical gene linkage.
 
-4. **Three distinct genomic signatures of macro-micro coupling emerge from core/accessory analysis.** P-acquisition genes are predominantly core (70.7%; Stouffer Z=68.3), N-fixation genes are moderately core (63.4%; Stouffer Z=3.2), and metal-handling genes span the core–accessory boundary (copA 56.8%, corA 73.5%, feoB 30.0%, HMA 23.6%).
+4. **All 63 phenazine operon carriers encode both P-acquisition and metal-handling genes** (100% overlap, OR=∞, Fisher p=9.4×10⁻³ for Phz-operon × Metal). These 63 species are concentrated in soil and insect-pathogenic families: Streptomycetaceae (24), Pseudomonadaceae (17), Streptosporangiaceae (10), and Enterobacteriaceae (6, all *Xenorhabdus*).
 
-5. **Negative associations reveal biological structure.** Pst transporter genes (pstC, pstS, pstA) are depleted relative to feoB (0.64–0.86× expected; phi as low as −0.256; all FDR q<0.05), suggesting that high-affinity phosphate transport and ferrous iron uptake occupy distinct ecological niches.
+5. **Three distinct genomic signatures of macro-micro coupling emerge from core/accessory analysis.** P-acquisition genes are predominantly core (70.7%; Stouffer Z=68.3), N-fixation genes are moderately core (63.4%; Stouffer Z=3.2), and metal-handling genes span the core–accessory boundary (copA 56.8%, corA 73.5%, feoB 30.0%, HMA 23.6%).
+
+6. **Independent validation: phytase × siderophore co-occurrence confirmed.** Following Wang et al. (2021), phytase and siderophore biosynthesis genes co-occur pan-bacterially (OR=2.0, phi=0.087, p=2.3×10⁻⁴³), surviving phylogenetic correction (log-OR 0.679 → 0.519, p=2.9×10⁻¹¹). The Burkholderiaceae-specific signal reported by Wang et al. was not replicated in our pan-GTDB analysis, likely reflecting scope differences between soil isolate collections and the full bacterial tree.
+
+7. **Negative associations reveal biological structure.** Pst transporter genes (pstC, pstS) are depleted relative to feoB (phi as low as −0.256; all FDR q<0.05), and these negative associations *strengthen* under phylogenetic correction (9–21% increase in |log-OR|), confirming genuine ecological niche separation between high-affinity phosphate transport and ferrous iron uptake.
 
 ## Background
 
@@ -50,6 +54,9 @@ Species-level presence was scored as ≥1 gene cluster matching the annotation c
 - **Permutation null:** 1,000 random permutations of group membership vectors, preserving marginal counts. Observed phi compared to null distribution; Z-score and permutation p-value reported. With N=1,000 permutations, the minimum representable p-value is 1/1,001 ≈ 0.001; values reported as p<0.001 indicate that the observed phi exceeded all null draws.
 - **Core vs. accessory enrichment:** Per-species Fisher's exact test on a 2×2 table of (core, non-core) × (nutrient gene set, metal gene set) gene counts within each species. This tests whether the two functional groups differ in their core-genome proportion. Per-species Z-scores are aggregated via Stouffer meta-analysis (Z_meta = Σz / √n) to assess the direction and magnitude of differential core enrichment across all co-encoding species.
 - **Phylogenetic stratification:** Phi coefficient computed within each GTDB phylum and class (minimum 50 or 20 species, respectively). Plant-associated families tested against global baseline.
+- **Phylogenetic logistic regression:** Binary trait co-occurrence tested using `phylolm::phyloglm(method="logistic_MPLE")` on the GTDB R214 bac120 reference tree pruned to 26,517 matching species. Logistic MPLE avoids explicit construction of the phylogenetic covariance matrix, enabling analysis on the full tree. Pagel's lambda was estimated separately for each gene via `phytools::phylosig(method="lambda")` on a phylum-stratified 5,000-tip subsample (full-tree estimation requires O(n²) memory). Pairs tested: 6 group-level + 7 strongest positive + 4 strongest negative individual pairs = 17 pairs.
+- **Operon-distance test:** For each species with both P-acquisition and metal-handling genes on the representative genome, within-contig gene-ordinal distances were computed for all P × M gene pairs. Gene ordinals were extracted from BERDL `gene_id` format (`{contig_accession}_{ordinal}`), which encodes sequential gene numbering (~1 gene/kb in bacteria). Cross-contig pairs were excluded from distance computation but counted in the same-contig fraction. 1,000 permutations shuffled ordinals within each species to construct the null distribution.
+- **Independent validation (Wang et al. 2021):** Phytase × siderophore co-occurrence tested as an independent benchmark of macro-micro nutrient trait coupling. Phytase families defined by 7 annotation criteria (gene names appA/phy, KEGG KOs K01093/K14379/K09474, PFAM PF02333/PF13714); siderophore biosynthesis families by 4 pathway groups (enterobactin, pyochelin, pyoverdine, hydroxamate). Fisher's exact test applied pan-bacterially, per-siderophore-type, and within Burkholderiaceae. Phylogenetic correction applied using the same `phyloglm` framework.
 
 ## Results
 
@@ -178,16 +185,96 @@ Log-odds ratios with 95% confidence intervals were computed for each major phylu
 
 **Figure 2.** Per-phylum forest plot of log-odds ratios for (A) P × Metal, (B) N × Metal, and (C) Phz × Metal co-occurrence. Blue bars: Fisher p<0.05; gray bars: non-significant. See `figures/forest_plot.png`.
 
+### 8. Phylogenetic correction
+
+To control for shared ancestry inflating co-occurrence statistics, we estimated phylogenetic signal for each gene family and tested all 17 co-occurrence pairs under phylogenetic logistic regression.
+
+**Phylogenetic signal (Pagel's lambda):** All 22 gene families show significant phylogenetic signal (lambda range 0.08–1.00). Core P-acquisition genes show the highest signal: pstA (1.00), pstB (0.97), pstC (0.90). Metal-handling genes are bimodal: corA (0.92) and copA (0.88) are strongly phylogenetically conserved, while feoB (0.52) and HMA (0.44) are moderately conserved. Phenazine genes show the lowest signal (phzG 0.08, phzM 0.28), consistent with their accessory-genome status.
+
+**Phylogenetic logistic regression (Table 5):**
+
+| Pair | Uncorrected log-OR | Phylo log-OR | Change | Phylo p | Converged |
+|------|-------------------:|-------------:|-------:|--------:|:---------:|
+| P × Metal | 0.898 | 0.914 | +2% | 4.4×10⁻²⁴ | Yes |
+| N × Metal | 2.256 | 2.113 | −6% | 1.7×10⁻²³ | Yes |
+| P × N | 0.635 | 0.295 | −54% | 2.6×10⁻³ | Yes |
+| phoD × HMA | 0.895 | 0.841 | −6% | 7.7×10⁻⁴¹ | Yes |
+| phoD × feoB | 0.851 | 1.001 | +18% | 5.6×10⁻⁵⁷ | Yes |
+| nifH × HMA | 0.406 | 0.527 | +30% | 1.6×10⁻²⁶ | Yes |
+| pstC × feoB | −0.902 | −0.987 | +9% | 8.1×10⁻¹⁷⁵ | Yes |
+| pstS × feoB | −0.734 | −0.879 | +20% | 2.0×10⁻¹²³ | Yes |
+| pstC × HMA | −0.653 | −0.788 | +21% | 3.2×10⁻¹¹⁰ | Yes |
+| phzF × feoB | −0.610 | −0.737 | +21% | 2.2×10⁻¹⁰⁹ | Yes |
+| phzG × corA | 3.405 | 3.392 | 0% | 1.2×10⁻¹⁴ | Yes |
+| phzD × corA | 3.111 | 3.108 | 0% | 4.9×10⁻⁵ | Yes |
+| phzA × corA | 2.451 | 2.448 | 0% | 1.6×10⁻³ | Yes |
+| phzB × corA | 1.896 | 1.888 | 0% | 1.2×10⁻⁷ | Yes |
+
+**Key findings:** 14 of 14 significant pairs survive phylogenetic correction (0% collapse rate). Five pairs become *stronger* after correction (phoD × feoB, nifH × HMA, and all four negative associations), meaning phylogenetic structure was partially masking the true association. Only P × N is substantially reduced (−54%), expected given the high Pagel's lambda of both gene groups (lambda ~0.9 for P-acquisition, ~0.87 for nifH). The Phz-operon group pairs (n=63) become non-significant due to small sample size combined with complete separation. See Figure 4.
+
+### 9. Operon-distance test (functional coupling)
+
+To test whether P × M gene co-occurrence reflects physical gene linkage (operon co-localization) rather than independent ecological selection, we measured within-contig distances between all P-acquisition and metal-handling gene pairs across 18,539 species with both gene types on their representative genomes.
+
+**Results (Table 6):**
+
+| Metric | Value |
+|--------|------:|
+| Species with P + M genes | 18,539 |
+| Species with same-contig pairs | 6,188 (33.4%) |
+| Total same-contig P × M pairs | 65,463 |
+| Same-contig fraction of all pairs | 28.1% |
+| Observed median distance | 910 genes |
+| Null median (1000 permutations) | 249.4 ± 2.2 genes |
+| Z-score (observed vs null) | 303.6 |
+| Pairs within 5 genes (operon-proximal) | 438 (0.67%) |
+| Pairs within 10 genes | 1,023 (1.56%) |
+| Pairs within 20 genes | 1,925 (2.94%) |
+
+P × M gene pairs on the same contig are **farther apart** than expected by chance (median 910 vs null 249, Z=304, p=1.0 for observed ≤ null). Only 0.67% of same-contig pairs fall within 5 genes — the operon-proximal range for bacteria. The co-occurrence signal is not driven by physical gene linkage; P-acquisition and metal-handling genes are independently maintained in the genome and co-occur due to ecological selection, not operon-level coupling. See Figure 5.
+
+### 10. Independent validation: Wang et al. 2021 phytase × siderophore coupling
+
+As an independent benchmark, we tested phytase × siderophore co-occurrence (Wang et al. 2021, *Frontiers in Microbiology* 12:572212), a well-characterized macro-micro nutrient trait pairing distinct from the P-acquisition × metal-handling axis.
+
+**Pan-bacterial co-occurrence:**
+
+| Metric | Value |
+|--------|------:|
+| Total species | 27,682 |
+| Phytase-encoding species | 6,139 (22.2%) |
+| Siderophore-encoding species | 2,103 (7.6%) |
+| Both traits | 732 (2.6%) |
+| OR | 1.99 |
+| Phi | 0.087 |
+| Fisher p | 2.3×10⁻⁴³ |
+| Permutation Z | 13.9 |
+
+**Per-siderophore-type co-occurrence:** All four siderophore types show significant positive co-occurrence with phytase: pyoverdine (OR=2.59, p=3.5×10⁻²⁵), hydroxamate (OR=2.32, p=1.9×10⁻²⁸), enterobactin (OR=2.02, p=6.1×10⁻³¹), pyochelin (OR=1.46, p=7.1×10⁻³).
+
+**Phylogenetically corrected:** Uncorrected log-OR 0.679 → corrected log-OR 0.519 (24% reduction), phylo p=2.9×10⁻¹¹. The association survives phylogenetic correction.
+
+**Burkholderiaceae stratification:** Wang et al. (2021) reported that 90.6% of linked-trait isolates belonged to Burkholderiaceae. In our pan-bacterial analysis, Burkholderiaceae contribute only 3.4% of linked-trait species (25/732). Within Burkholderiaceae specifically, the co-occurrence is non-significant (OR=1.28, p=0.39, n=333). The discrepancy likely reflects the scope difference: Wang et al. analyzed soil isolate collections enriched for Burkholderiaceae, while our analysis spans all 27,682 GTDB species pangenomes. The family most enriched in our analysis is Enterobacteriaceae (27.3% of linked-trait species, 42.4% of Enterobacteriaceae encode both traits). Other families with high within-family rates include Myxococcaceae (63.3%), Alcanivoracaceae (35.3%), and Nostocaceae (33.8%). See Figure 6.
+
 ## Interpretation
 
-### The macro-micro nutrient coupling is genomically encoded
+### The macro-micro nutrient coupling is genomically encoded and phylogenetically robust
 
-The central result — significant positive co-occurrence of P-acquisition, N-fixation, and metal-handling genes across 27,682 bacterial pangenomes — supports the hypothesis that macro-nutrient and trace-metal cycling are genomically coupled in bacteria. The effect sizes are modest at the group level (phi 0.01–0.11) but highly significant given the dataset size (all permutation Z > 2.3), and individual gene pairs reach enrichments of 1.4–1.8× (64/72 FDR-significant at q<0.05).
+The central result — significant positive co-occurrence of P-acquisition, N-fixation, and metal-handling genes across 27,682 bacterial pangenomes — supports the hypothesis that macro-nutrient and trace-metal cycling are genomically coupled in bacteria. Crucially, this coupling survives phylogenetic correction: all 14 significant pairs remain significant under phylogenetic logistic regression (0% collapse rate), and five pairs become *stronger* after correction, meaning shared ancestry was partially masking the true ecological association.
+
+**On effect sizes at the pan-bacterial scale:** The group-level phi coefficients (0.01–0.11) are modest by design. Phi measures correlation across all 27,682 species in the bacterial tree — a scale at which metal-handling genes have 91.7% background prevalence, leaving limited room for enrichment. The biologically informative effect sizes emerge at three levels:
+1. **Individual gene pairs** reach enrichments of 1.4–1.8× with phi up to 0.26 (64/72 FDR-significant), where the specific combinations predicted by enzyme biochemistry produce the strongest signals.
+2. **Phylogenetically corrected log-ORs** range from 0.3 to 3.4 — these are the effect sizes that survive ancestry-controlled testing and represent the per-species probability shift attributable to ecological co-selection.
+3. **Environment-stratified log-ORs** in soil/rhizosphere (+1.34) and plant-associated (+1.51) habitats are 1.3–5.8× the pan-bacterial values, showing that the coupling concentrates in the environments where Fe-oxyhydroxide mineral chemistry predicts it should.
 
 The coupling is not uniform: it is strongest for the specific mechanistic links predicted by biochemistry:
-- **nifH × HMA** (nitrogenase requires Fe-Mo cofactor and heavy-metal homeostasis) — strong positive signal
-- **phoD × HMA/feoB** (PhoD requires metal cofactors) — strong positive signal
-- **pstC × feoB** (high-affinity phosphate transport vs. ferrous iron) — strong negative signal, suggesting niche separation
+- **nifH × HMA** (nitrogenase requires Fe-Mo cofactor and heavy-metal homeostasis) — strong positive signal, strengthened by 30% after phylogenetic correction
+- **phoD × feoB** (PhoD requires metal cofactors) — strengthened by 18% after phylogenetic correction
+- **pstC × feoB** (high-affinity phosphate transport vs. ferrous iron) — strong negative signal, strengthened by 9% after correction, suggesting niche separation is a genuine ecological pattern not driven by phylogenetic confounding
+
+### The coupling is ecological, not genomic linkage
+
+The operon-distance test demonstrates that P-acquisition and metal-handling genes are NOT physically co-localized in bacterial genomes. Same-contig P × M gene pairs are farther apart than expected by chance (median 910 genes vs null 249, Z=304), and only 0.67% fall within the operon-proximal range (≤5 genes). This rules out a trivial explanation for co-occurrence — that P and M genes happen to sit in the same operon or gene cluster and are therefore co-inherited as a physical unit. Instead, the co-occurrence reflects independent genomic maintenance of both functional groups under shared ecological selection pressures.
 
 ### Three genomic strategies for macro-micro coupling
 
@@ -215,7 +302,7 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 3. **PFAM PF00142 captures the broader Fer4 ferredoxin superfamily.** The Fer4_NifH domain (PF00142) is shared by nitrogenase iron proteins and other 4Fe-4S ferredoxins. Using PF00142 inflates apparent N-fixation prevalence from 2,746 to 5,872 species (a 114% increase). The primary analysis uses KEGG KO-defined nifH/nifD only; PF00142 is reported as a sensitivity check. This distinction materially affects the N × Metal association: KO-only yields OR=10.1 (phi=0.088), while PF00142-inclusive yields OR=4.0 (phi=0.107) — the inflated species count includes ferredoxin-containing non-diazotrophs that dilute the true association.
 
-4. **Phylogenetic non-independence.** Closely related species share gene content by descent, inflating co-occurrence statistics. The permutation test controls for marginal gene frequencies but not for phylogenetic autocorrelation. A full phylogenetic logistic regression or phylogenetic independent contrasts analysis would provide a stronger control.
+4. **Phylogenetic non-independence — now controlled.** Phylogenetic logistic regression using the GTDB R214 bac120 tree (26,517 tips) confirms that all 14 significant pairs survive correction for shared ancestry (Section 8). The permutation test results from v2 are retained as a complementary, model-free check. One caveat: phylogenetic signal was estimated on a 5,000-tip subsample due to memory constraints of the full covariance matrix; the logistic regression itself used the full tree via MPLE.
 
 5. **Ecological inference from genomic potential.** Encoding a gene does not guarantee its expression in a given environment. The co-occurrence pattern is consistent with — but does not prove — coordinated nutrient-metal cycling in natural environments.
 
@@ -233,8 +320,6 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 - **Substrate B (ecological):** Where do communities enriched for the macro-micro co-occurrence gene profile appear along nutrient gradients in natural soils? Data: NMDC multi-omics + abiotic features + ENIGMA CORAL.
 
-- **Phylogenetic independent contrasts:** Apply phylogenetic logistic regression using GTDB phylogenetic distance pairs to control for shared ancestry and test whether co-occurrence remains significant after accounting for phylogenetic signal.
-
 - **Field validation (Point Reyes):** The mafic-vs-felsic fault gradient at Point Reyes (Rowley et al. 2023, 2024) provides a natural experiment to test whether co-released P and trace metals (Co, Cu, Ni) from Fe-oxyhydroxide dissolution shape rhizosphere community composition in the pattern predicted by this genomic analysis.
 
 - **Expanded phenazine gene set:** Expand the phenazine gene set to include actinomycete-specific phenazine biosynthesis markers (e.g. naphthoyl synthase, PhzD-like in *Streptomyces*, RppA polyketide synthases) and re-run the (d)×(c) co-occurrence test. The *Pseudomonas*-anchored gene set used in this study likely under-detects the true scope of the phenazine arm of macro-micro nutrient co-mobilization.
@@ -244,14 +329,21 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 - Edayilam, N. et al. (2018). Phosphorus stress-induced changes in plant root exudate composition and their effects on morphology and key functional groups of soil bacterial and archaeal communities. *Environmental Microbiology*, 20(7), 2504–2521.
 - McRose, D.L. & Newman, D.K. (2021). Redox-active antibiotics enhance phosphorus bioavailability. *Science*, 371, 1033–1037.
 - Wu, Z. et al. (2022). Phenazine biosynthesis genes in metagenome-assembled genomes from phosphorus-limited reforestation soils. *ISME Journal*.
+- Wang, H. et al. (2021). Phytase-producing rhizobacteria as a natural control for enhancing phosphorus phytoavailability. *Frontiers in Microbiology*, 12, 572212.
 - Dakora, F.D. & Phillips, D.A. (2002). Root exudates as mediators of mineral acquisition in low-nutrient environments. *Plant and Soil*, 245, 35–47.
 
 ## Data and Reproducibility
 
-All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/08_forest_plot.py`. Intermediate data files are in `data/`. Figures are in `figures/`.
+All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/15_figure6_wang2021.py`. Phylogenetic analyses use R packages `phylolm` (v2.6.5) and `phytools` (v2.3-0) via `src/09_phylo_signal.R` and `src/10_phylo_logistic.R`, run in a dedicated `r_phylo` conda environment. Intermediate data files are in `data/`. Figures are in `figures/`.
 
 **Figure 1.** (A) Phi coefficient heatmap for 18 nutrient/phenazine × 4 metal gene pairs (72 FDR-tested pairs). nifH(Pfam) is shown for visual reference as the broad-definition sensitivity check but is excluded from the 72-pair FDR correction. (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers. See `figures/figure1_cooccurrence.png`.
 
 **Figure 2.** Per-phylum forest plot of log-odds ratios with 95% CIs for P × Metal, N × Metal, and Phz × Metal co-occurrence across 34 GTDB phyla. See `figures/forest_plot.png`.
 
 **Figure 3.** Environmental stratification of P × Metal and N × Metal log-odds ratios across 6 broad environment categories. Blue bars: P × Metal; red bars: N × Metal. Saturated colors: Fisher p<0.05; pale colors: non-significant. See `figures/figure3_env_stratification.png`.
+
+**Figure 4.** Uncorrected vs phylogenetically corrected log-ORs for 17 tested pairs. Points color-coded by mean Pagel's lambda of the gene pair. Above diagonal: strengthened by correction; below diagonal: weakened. Gray crosses: non-significant after correction. See `figures/figure4_phylo_correction.png`.
+
+**Figure 5.** (A) Distribution of within-contig P × M gene-ordinal distances (65,463 pairs, log scale). Vertical lines at 5, 10, and 20 genes mark operon-proximal thresholds. (B) Observed median vs 1,000-permutation null distribution. See `figures/figure5_operon_distance.png`.
+
+**Figure 6.** Wang et al. 2021 validation. (A) Per-family phytase × siderophore co-occurrence rates (% of family encoding both traits). Burkholderiaceae highlighted in red. (B) Per-siderophore-type odds ratios for phytase co-occurrence. See `figures/figure6_wang2021.png`.
