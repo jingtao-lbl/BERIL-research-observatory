@@ -1,0 +1,18 @@
+label,gene_x,gene_y,col_x,col_y
+P x Metal (group),P-acquisition,Metal-handling,has_P_acquisition,has_metal_handling
+N x Metal (group),N-fixation,Metal-handling,has_N_fixation,has_metal_handling
+Phz-operon x Metal (group),Phz-operon,Metal-handling,has_phz_operon,has_metal_handling
+P x N (group),P-acquisition,N-fixation,has_P_acquisition,has_N_fixation
+Phz-operon x P (group),Phz-operon,P-acquisition,has_phz_operon,has_P_acquisition
+N x Phz-operon (group),N-fixation,Phz-operon,has_N_fixation,has_phz_operon
+phzG x corA,phzG,corA,has_phzG,has_corA
+phzD x corA,phzD,corA,has_phzD,has_corA
+phzA x corA,phzA,corA,has_phzA,has_corA
+phoD x HMA,phoD,HMA,has_phoD_pfam,has_HMA_pfam
+phzB x corA,phzB,corA,has_phzB,has_corA
+phoD x feoB,phoD,feoB,has_phoD_pfam,has_feoB_pfam
+nifH x HMA,nifH,HMA,has_nifH,has_HMA_pfam
+pstC x feoB,pstC,feoB,has_pstC,has_feoB_pfam
+pstS x feoB,pstS,feoB,has_pstS,has_feoB_pfam
+pstC x HMA,pstC,HMA,has_pstC,has_HMA_pfam
+phzF x feoB,phzF,feoB,has_phzF,has_feoB_pfam
