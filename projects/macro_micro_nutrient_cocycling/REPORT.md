@@ -6,7 +6,7 @@
 
 2. **N-fixation and metal-handling show the strongest per-species association.** Using KEGG KO-defined nifH/nifD (2,746 species), N × Metal has OR=10.1 (Fisher p=1.3×10⁻⁷¹; permutation Z=14.7). The high OR reflects near-universal metal gene presence among true diazotrophs (2,719/2,746 = 99.0%). The phylogenetically corrected log-OR (2.11) shows only 6% reduction, confirming this is not driven by shared ancestry.
 
-3. **The coupling is ecological, not genomic linkage.** P × M gene pairs on the same contig are farther apart than expected by chance (median 910 genes vs null 249, Z=304). Only 0.67% of same-contig pairs fall within the operon-proximal range (≤5 genes). Co-occurrence reflects independent genomic maintenance under shared ecological selection, not physical gene linkage.
+3. **The coupling is ecological, not genomic linkage or pathway integration.** P × M gene pairs on the same contig are farther apart than expected by chance (median 910 genes vs null 249, Z=304). Only 0.67% of same-contig pairs fall within the operon-proximal range (≤5 genes). P and M genes share fewer KEGG pathways than expected by chance (Z = −30). Co-occurrence reflects organism-level ecological co-selection, not physical linkage or shared metabolism.
 
 4. **All 63 phenazine operon carriers encode both P-acquisition and metal-handling genes** (100% overlap, OR=∞, Fisher p=9.4×10⁻³ for Phz-operon × Metal). These 63 species are concentrated in soil and insect-pathogenic families: Streptomycetaceae (24), Pseudomonadaceae (17), Streptosporangiaceae (10), and Enterobacteriaceae (6, all *Xenorhabdus*).
 
@@ -233,7 +233,17 @@ To test whether P × M gene co-occurrence reflects physical gene linkage (operon
 
 P × M gene pairs on the same contig are **farther apart** than expected by chance (median 910 vs null 249, Z=304, p=1.0 for observed ≤ null). Only 0.67% of same-contig pairs fall within 5 genes — the operon-proximal range for bacteria. The co-occurrence signal is not driven by physical gene linkage; P-acquisition and metal-handling genes are independently maintained in the genome and co-occur due to ecological selection, not operon-level coupling. See Figure 5.
 
-### 10. Independent validation: Wang et al. 2021 phytase × siderophore coupling
+### 10. KEGG pathway co-membership
+
+To test whether the co-occurrence of P-acquisition and metal-handling genes reflects shared metabolic pathway membership, we queried KEGG pathway annotations from `eggnog_mapper_annotations` for all target gene clusters.
+
+**Gene-family level:** P-acquisition genes map to 63 KEGG pathways; metal-handling genes map to 103 pathways; 15 pathways are shared. The shared pathways are predominantly broad categories: ko01100 (metabolic pathways — the KEGG catch-all), ko02020 (two-component system, reflecting PhoB-dependent signaling), ko02024 (quorum sensing), ko00730 (thiamine metabolism), and ko00790 (folate biosynthesis). No narrowly defined biosynthetic or catabolic pathway is shared between P and M gene families.
+
+**Species level:** Among 18,056 species with both P and M pathway annotations, only 7.6% (1,374 species) share ≥1 KEGG pathway between their P and M gene clusters. The mean shared pathways per species is 0.08. Critically, this is **lower** than expected by chance: the 1,000-permutation null yields a mean of 0.17 (Z = −30.0, p = 1.0 for observed ≥ null). P-acquisition and metal-handling genes participate in **distinct** metabolic pathways, not overlapping ones.
+
+**Interpretation:** This result, combined with the operon-distance test (Section 9), provides converging evidence that the P × M co-occurrence is not driven by metabolic pathway integration or physical gene linkage. The coupling operates at the organism level — species that need to scavenge phosphate also tend to need metal homeostasis — rather than at the pathway or operon level. This is consistent with an ecological co-selection model where shared environmental pressures (e.g., Fe-oxyhydroxide mineral surfaces that co-adsorb P and metals) favor retention of both functional groups independently.
+
+### 11. Independent validation: Wang et al. 2021 phytase × siderophore coupling
 
 As an independent benchmark, we tested phytase × siderophore co-occurrence (Wang et al. 2021, *Frontiers in Microbiology* 12:572212), a well-characterized macro-micro nutrient trait pairing distinct from the P-acquisition × metal-handling axis.
 
@@ -272,9 +282,9 @@ The coupling is not uniform: it is strongest for the specific mechanistic links 
 - **phoD × feoB** (PhoD requires metal cofactors) — strengthened by 18% after phylogenetic correction
 - **pstC × feoB** (high-affinity phosphate transport vs. ferrous iron) — strong negative signal, strengthened by 9% after correction, suggesting niche separation is a genuine ecological pattern not driven by phylogenetic confounding
 
-### The coupling is ecological, not genomic linkage
+### The coupling is ecological, not genomic linkage or pathway integration
 
-The operon-distance test demonstrates that P-acquisition and metal-handling genes are NOT physically co-localized in bacterial genomes. Same-contig P × M gene pairs are farther apart than expected by chance (median 910 genes vs null 249, Z=304), and only 0.67% fall within the operon-proximal range (≤5 genes). This rules out a trivial explanation for co-occurrence — that P and M genes happen to sit in the same operon or gene cluster and are therefore co-inherited as a physical unit. Instead, the co-occurrence reflects independent genomic maintenance of both functional groups under shared ecological selection pressures.
+Two complementary tests rule out trivial explanations for the co-occurrence. The operon-distance test demonstrates that P-acquisition and metal-handling genes are NOT physically co-localized in bacterial genomes: same-contig P × M gene pairs are farther apart than expected by chance (median 910 genes vs null 249, Z=304), and only 0.67% fall within the operon-proximal range (≤5 genes). The KEGG pathway co-membership test shows that P and M genes participate in distinct metabolic pathways — they share fewer pathways than expected by chance (Z = −30). Together, these results rule out both physical gene linkage and shared metabolic pathway membership as explanations. The co-occurrence reflects independent genomic maintenance of both functional groups under shared ecological selection pressures — organisms that face phosphate limitation in environments mediated by Fe-oxyhydroxide mineral surfaces retain both P-acquisition and metal-handling capabilities as separate but co-selected genomic modules.
 
 ### Three genomic strategies for macro-micro coupling
 
@@ -334,7 +344,7 @@ The depletion of pstC/S with feoB suggests that high-affinity phosphate scavengi
 
 ## Data and Reproducibility
 
-All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/15_figure6_wang2021.py`. Phylogenetic analyses use R packages `phylolm` (v2.6.5) and `phytools` (v2.3-0) via `src/09_phylo_signal.R` and `src/10_phylo_logistic.R`, run in a dedicated `r_phylo` conda environment. Intermediate data files are in `data/`. Figures are in `figures/`.
+All analyses were performed on the KBase BER Data Lakehouse using Spark SQL queries against `kbase_ke_pangenome` (132.5M gene clusters, 27,702 species pangenomes, GTDB R214). Source code is in `src/01_extract_gene_families.py` through `src/16_kegg_pathway_comembership.py`. Phylogenetic analyses use R packages `phylolm` (v2.6.5) and `phytools` (v2.3-0) via `src/09_phylo_signal.R` and `src/10_phylo_logistic.R`, run in a dedicated `r_phylo` conda environment. Intermediate data files are in `data/`. Figures are in `figures/`.
 
 **Figure 1.** (A) Phi coefficient heatmap for 18 nutrient/phenazine × 4 metal gene pairs (72 FDR-tested pairs). nifH(Pfam) is shown for visual reference as the broad-definition sensitivity check but is excluded from the 72-pair FDR correction. (B) Core genome fraction per gene family. (C) Phylum-level P × Metal co-occurrence. (D) Taxonomic distribution of phenazine operon carriers. See `figures/figure1_cooccurrence.png`.
 

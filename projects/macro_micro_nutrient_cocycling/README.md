@@ -72,6 +72,9 @@ python src/14_figure5_operon_distance.py
 
 # Step 15: Figure 6 — Wang 2021 family-level co-occurrence
 python src/15_figure6_wang2021.py
+
+# Step 16: KEGG pathway co-membership test (requires on-cluster Spark access)
+python src/16_kegg_pathway_comembership.py
 ```
 
 Steps 1, 7, 11, and 12 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 9–10 require an R environment with `phylolm` and `phytools` (create via `conda create -n r_phylo -c conda-forge r-base r-ape r-phytools r-phylolm --solver=classic`). All other steps run locally on CSV outputs in `data/`.

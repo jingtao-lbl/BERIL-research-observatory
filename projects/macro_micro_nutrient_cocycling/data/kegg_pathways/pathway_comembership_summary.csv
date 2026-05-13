@@ -1,0 +1,14 @@
+metric,value
+n_species_both,18056
+n_shared_any,1374
+pct_shared,7.6
+mean_shared_pathways,0.08
+median_shared_pathways,0.0
+mean_jaccard,0.0099
+null_mean,0.17
+null_std,0.0
+z_score,-29.95
+perm_p,1.0
+n_p_pathways,63
+n_m_pathways,103
+n_pm_shared,15
