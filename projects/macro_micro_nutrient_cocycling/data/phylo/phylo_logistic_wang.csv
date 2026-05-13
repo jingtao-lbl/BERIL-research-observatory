@@ -1,0 +1,2 @@
+"pair_label","gene_x","gene_y","n_species","n_both","uncorrected_logOR","uncorrected_p","phylo_alpha","phylo_logOR","phylo_se","phylo_z","phylo_p","phylo_ci_low","phylo_ci_high","converged"
+"phytase x siderophore","phytase","siderophore",26517,732,0.678979175353467,4.68468932318987e-42,12.5410310363633,0.519233780399953,0.078076361602606,6.65033269663302,2.92431238596477e-11,0.366204111658846,0.672263449141061,TRUE

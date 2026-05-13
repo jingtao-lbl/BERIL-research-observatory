@@ -1,0 +1,14 @@
+metric,value
+n_total,27682
+n_phytase,6139
+n_siderophore,2103
+n_both,732
+n_phytase_only,5407
+n_siderophore_only,1371
+n_neither,20172
+OR,1.9918939667721436
+phi,0.08717576121560187
+jaccard,0.09747003994673768
+fisher_p,2.3310424531741854e-43
+perm_z,13.855594092990406
+perm_p,0.0

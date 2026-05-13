@@ -1,0 +1,9 @@
+metric,value
+observed_median,910.0
+null_mean,249.386
+null_std,2.176006433814018
+z_score,303.59009501736716
+p_value,1.0
+n_permutations,1000
+n_species,18539
+n_same_contig_pairs,65463
