@@ -97,7 +97,7 @@ def main():
     ax.set_xlabel("Uncorrected log-OR (Fisher's exact)", fontsize=12)
     ax.set_ylabel("Phylogenetically corrected log-OR (phyloglm)", fontsize=12)
     ax.set_title("Figure 4. Effect sizes before and after phylogenetic correction\n"
-                 "(color = mean Pagel's λ of gene pair)", fontsize=13)
+                 "(soil/plant species; color = mean Pagel's λ of gene pair)", fontsize=12)
 
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])

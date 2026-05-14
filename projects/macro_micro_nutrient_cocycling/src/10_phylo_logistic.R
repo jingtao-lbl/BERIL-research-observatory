@@ -14,6 +14,12 @@ cat(sprintf("Tree has %d tips\n", Ntip(tree)))
 cat("Loading trait data...\n")
 traits <- read.csv(trait_path, stringsAsFactors = FALSE)
 
+env_map <- read.csv(file.path(dirname(trait_path), "env_species_mapping.csv"), stringsAsFactors = FALSE)
+soil_plant_ids <- env_map$gtdb_species_clade_id[
+  env_map$primary_env %in% c("soil/rhizosphere", "plant-associated")]
+traits <- traits[traits$gtdb_species_clade_id %in% soil_plant_ids, ]
+cat(sprintf("v4 soil+plant filter: %d species\n", nrow(traits)))
+
 acc_from_id <- function(sid) {
   parts <- strsplit(sid, "--", fixed = TRUE)
   sapply(parts, function(x) x[length(x)])
@@ -21,6 +27,9 @@ acc_from_id <- function(sid) {
 traits$accession <- acc_from_id(traits$gtdb_species_clade_id)
 
 rownames(traits) <- traits$accession
+common <- intersect(tree$tip.label, traits$accession)
+tree <- keep.tip(tree, common)
+cat(sprintf("Pruned tree to %d tips\n", Ntip(tree)))
 traits_matched <- traits[tree$tip.label, ]
 stopifnot(nrow(traits_matched) == Ntip(tree))
 

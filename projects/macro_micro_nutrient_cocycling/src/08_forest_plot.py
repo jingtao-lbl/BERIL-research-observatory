@@ -25,8 +25,12 @@ os.makedirs(FIG_DIR, exist_ok=True)
 print("Loading data...")
 df = pd.read_csv(os.path.join(DATA_DIR, 'species_gene_families.csv'))
 tax = pd.read_csv(os.path.join(DATA_DIR, 'species_taxonomy.csv'))
+_env = pd.read_csv(os.path.join(DATA_DIR, 'env_species_mapping.csv'))
+_sp = set(_env[_env['primary_env'].isin(['soil/rhizosphere', 'plant-associated'])]['gtdb_species_clade_id'])
+df = df[df['gtdb_species_clade_id'].isin(_sp)].copy()
+del _env, _sp
 merged = df.merge(tax[['gtdb_species_clade_id', 'phylum']], on='gtdb_species_clade_id', how='left')
-print(f"Merged: {len(merged)} species")
+print(f"v4 soil+plant filter: {len(merged)} species")
 
 pairs = {
     'P x Metal': ('has_P_acquisition', 'has_metal_handling'),
@@ -34,7 +38,7 @@ pairs = {
     'Phz x Metal': ('has_phz_operon', 'has_metal_handling'),
 }
 
-MIN_PHYLUM_SIZE = 50
+MIN_PHYLUM_SIZE = 20
 
 rows = []
 for pair_label, (col_a, col_b) in pairs.items():

@@ -99,21 +99,30 @@ def main():
 
     print(f"  Combined siderophore: {len(all_siderophore_species)} species")
 
-    # ── Step 3: Load full species list and taxonomy ──
-    print("\nStep 3: Load species list and taxonomy")
+    # ── Step 3: Load full species list and taxonomy (soil+plant filter) ──
+    print("\nStep 3: Load species list and taxonomy (soil+plant only)")
+
+    import pandas as _pd
+    _env = _pd.read_csv(os.path.join(data_dir, "env_species_mapping.csv"))
+    soil_plant_ids = set(_env[_env['primary_env'].isin(['soil/rhizosphere', 'plant-associated'])]['gtdb_species_clade_id'])
+    del _env
 
     all_species = set()
     with open(os.path.join(data_dir, "species_gene_families.csv")) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            all_species.add(row["gtdb_species_clade_id"])
-    print(f"  Total species: {len(all_species)}")
+            sid = row["gtdb_species_clade_id"]
+            if sid in soil_plant_ids:
+                all_species.add(sid)
+    print(f"  Total soil+plant species: {len(all_species)}")
 
     taxonomy = {}
     with open(os.path.join(data_dir, "species_taxonomy.csv")) as f:
         reader = csv.DictReader(f)
         for row in reader:
             sid = row["gtdb_species_clade_id"]
+            if sid not in soil_plant_ids:
+                continue
             taxonomy[sid] = {
                 "domain": row.get("domain", ""),
                 "phylum": row.get("phylum", ""),
@@ -324,6 +333,14 @@ def main():
     pd.DataFrame(species_data).to_csv(
         os.path.join(output_dir, "species_phytase_siderophore.csv"), index=False
     )
+
+    # Regenerate species_gene_families_extended.csv with phytase/siderophore columns
+    gf = pd.read_csv(os.path.join(data_dir, "species_gene_families.csv"))
+    gf = gf[gf['gtdb_species_clade_id'].isin(all_species)].copy()
+    gf['has_phytase'] = gf['gtdb_species_clade_id'].isin(has_phyt).astype(int)
+    gf['has_siderophore'] = gf['gtdb_species_clade_id'].isin(has_sid).astype(int)
+    gf.to_csv(os.path.join(data_dir, "species_gene_families_extended.csv"), index=False)
+    print(f"  Updated species_gene_families_extended.csv ({len(gf)} species)")
 
     print(f"\nDone. Results in {output_dir}/")
     spark.stop()

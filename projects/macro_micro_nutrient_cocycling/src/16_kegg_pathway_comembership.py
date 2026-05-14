@@ -89,17 +89,25 @@ def main():
     p_df = spark.sql(p_query).toPandas()
     p_pfam_df = spark.sql(p_pfam_query).toPandas()
     p_all = pd.concat([p_df, p_pfam_df], ignore_index=True)
-    print(f"  P-acquisition: {len(p_all)} gene cluster rows")
+    print(f"  P-acquisition: {len(p_all)} gene cluster rows (all species)")
 
     print("  Querying metal-handling genes...")
     m_df = spark.sql(m_query).toPandas()
     m_pfam_df = spark.sql(m_pfam_query).toPandas()
     m_all = pd.concat([m_df, m_pfam_df], ignore_index=True)
-    print(f"  Metal-handling: {len(m_all)} gene cluster rows")
+    print(f"  Metal-handling: {len(m_all)} gene cluster rows (all species)")
 
     print("  Querying N-fixation genes...")
     n_df = spark.sql(n_query).toPandas()
-    print(f"  N-fixation: {len(n_df)} gene cluster rows")
+    print(f"  N-fixation: {len(n_df)} gene cluster rows (all species)")
+
+    _env = pd.read_csv(os.path.join(data_dir, "env_species_mapping.csv"))
+    _sp = set(_env[_env['primary_env'].isin(['soil/rhizosphere', 'plant-associated'])]['gtdb_species_clade_id'])
+    p_all = p_all[p_all['gtdb_species_clade_id'].isin(_sp)].copy()
+    m_all = m_all[m_all['gtdb_species_clade_id'].isin(_sp)].copy()
+    n_df = n_df[n_df['gtdb_species_clade_id'].isin(_sp)].copy()
+    del _env, _sp
+    print(f"  After soil+plant filter: P={len(p_all)}, M={len(m_all)}, N={len(n_df)}")
 
     # ── Step 2: Parse pathways per gene family ──
     print("\nStep 2: Parse pathway memberships per gene family")

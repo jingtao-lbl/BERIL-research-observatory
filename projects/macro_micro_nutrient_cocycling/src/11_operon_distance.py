@@ -81,13 +81,20 @@ def main():
     cnt = spark.sql("SELECT COUNT(DISTINCT gene_cluster_id) as cnt FROM all_targets").collect()
     print(f"  Target gene clusters: {cnt[0].cnt:,}")
 
-    print("\nStep 2: Load species list (both P and M genes)")
+    print("\nStep 2: Load species list (both P and M genes, soil+plant only)")
+    import pandas as _pd
+    _env = _pd.read_csv(os.path.join(data_dir, "env_species_mapping.csv"))
+    soil_plant_ids = set(_env[_env['primary_env'].isin(['soil/rhizosphere', 'plant-associated'])]['gtdb_species_clade_id'])
+    del _env
+
     species_with_both = set()
     species_accessions = {}
     with open(os.path.join(data_dir, "species_gene_families.csv")) as f:
         reader = csv.DictReader(f)
         for row in reader:
             sid = row["gtdb_species_clade_id"]
+            if sid not in soil_plant_ids:
+                continue
             has_p = int(row["has_P_acquisition"])
             has_m = int(row["has_metal_handling"])
             if has_p and has_m:
@@ -95,7 +102,7 @@ def main():
                 species_with_both.add(sid)
                 species_accessions[acc] = sid
 
-    print(f"  {len(species_with_both)} species with both P and metal genes")
+    print(f"  {len(species_with_both)} soil+plant species with both P and metal genes")
 
     print("\nStep 3: Spark join — target clusters → genes → genomes")
     print("  (This joins ~200K target clusters against 1B gene rows via gene_genecluster_junction)")
@@ -117,7 +124,9 @@ def main():
 
     print("  Collecting to pandas...")
     pdf = result_df.toPandas()
-    print(f"  Got {len(pdf):,} rows")
+    print(f"  Got {len(pdf):,} rows (all species)")
+    pdf = pdf[pdf["species_id"].isin(soil_plant_ids)].copy()
+    print(f"  After soil+plant filter: {len(pdf):,} rows")
 
     print("\nStep 4: Filter to representative genomes and parse positions")
     pdf["rep_acc"] = pdf["species_id"].str.split("--").str[-1]

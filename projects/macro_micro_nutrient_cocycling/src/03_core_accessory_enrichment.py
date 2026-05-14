@@ -20,7 +20,11 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 print("Loading species gene families...")
 df = pd.read_csv(os.path.join(DATA_DIR, 'species_gene_families.csv'))
-print(f"Loaded {len(df)} species")
+_env = pd.read_csv(os.path.join(DATA_DIR, 'env_species_mapping.csv'))
+_sp = set(_env[_env['primary_env'].isin(['soil/rhizosphere', 'plant-associated'])]['gtdb_species_clade_id'])
+df = df[df['gtdb_species_clade_id'].isin(_sp)].copy()
+print(f"v4 soil+plant filter: {len(df)} species")
+del _env, _sp
 
 nutrient_gene_sets = {
     'P_genes': ['phoA', 'phoD_pfam', 'pstA', 'pstB', 'pstC', 'pstS', 'phnC', 'phnD', 'phnE'],

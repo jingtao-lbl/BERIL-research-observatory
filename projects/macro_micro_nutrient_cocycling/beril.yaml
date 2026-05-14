@@ -1,8 +1,8 @@
 project_id: macro_micro_nutrient_cocycling
-status: complete
+status: analysis
 created_at: "2026-05-07T09:00:00-07:00"
-last_session_at: "2026-05-13T14:30:00-07:00"
-branch: projects/macro_micro_nutrient_cocycling_v3
+last_session_at: "2026-05-13T22:00:00-07:00"
+branch: projects/macro_micro_nutrient_cocycling_v4_soil_plant
 engine:
   name: claude
 authors:
@@ -12,5 +12,5 @@ artifacts:
   readme: true
   research_plan: true
   report: true
-  review: true
+  review: false
   references: true

@@ -26,6 +26,10 @@ os.makedirs(FIG_DIR, exist_ok=True)
 
 detail = pd.read_csv(os.path.join(DATA_DIR, 'pairwise_detail.csv'))
 df = pd.read_csv(os.path.join(DATA_DIR, 'species_gene_families.csv'))
+_env = pd.read_csv(os.path.join(DATA_DIR, 'env_species_mapping.csv'))
+_sp = set(_env[_env['primary_env'].isin(['soil/rhizosphere', 'plant-associated'])]['gtdb_species_clade_id'])
+df = df[df['gtdb_species_clade_id'].isin(_sp)].copy()
+del _env, _sp
 cooc = pd.read_csv(os.path.join(DATA_DIR, 'cooccurrence_matrix.csv'))
 phz_tax = pd.read_csv(os.path.join(DATA_DIR, 'phenazine_operon_taxonomy.csv'))
 phy = pd.read_csv(os.path.join(DATA_DIR, 'phylum_cooccurrence.csv'))
@@ -210,8 +214,8 @@ for i, v in enumerate(family_df['count'].values):
 
 ax_d.set_title('D. Phenazine operon carriers by family', fontsize=11, fontweight='bold', loc='left')
 
-plt.suptitle('Macro-Micro Nutrient Gene Co-occurrence Across 27,682 Bacterial Pangenomes',
-             fontsize=13, fontweight='bold', y=0.98)
+plt.suptitle(f'Macro-Micro Nutrient Gene Co-occurrence Across {len(df):,} Soil/Plant-Associated Bacterial Pangenomes',
+             fontsize=12, fontweight='bold', y=0.98)
 
 fig.savefig(os.path.join(FIG_DIR, 'figure1_cooccurrence.png'), dpi=300, bbox_inches='tight')
 fig.savefig(os.path.join(FIG_DIR, 'figure1_cooccurrence.pdf'), bbox_inches='tight')

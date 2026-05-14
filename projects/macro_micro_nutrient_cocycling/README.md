@@ -6,11 +6,11 @@ Do bacterial pangenomes encoding macro-nutrient acquisition (P, N) and phenazine
 
 ## Status
 
-Completed — Significant co-occurrence of macro-nutrient acquisition and metal-handling genes across 27,682 bacterial pangenomes, with all 63 phenazine operon carriers encoding both P-acquisition and metal-handling genes.
+Completed — Significant co-occurrence of macro-nutrient acquisition and metal-handling genes across 4,540 soil/plant-associated bacterial pangenomes (phi=0.129, OR=3.9), with the association surviving phylogenetic correction on a 4,177-tip subtree.
 
 ## Overview
 
-Across 27,682 GTDB species pangenomes from `kbase_ke_pangenome`, we find significant co-occurrence of P-acquisition and metal-handling genes (phi=0.110, OR=2.3, p=1.3×10⁻⁶⁵), N-fixation and metal-handling genes (phi=0.088, OR=10.1, p=1.3×10⁻⁷¹), and complete overlap of phenazine operon carriers with metal-handling genes (63/63 species, 100%). The 63 phenazine operon carriers are concentrated in soil Actinomycetota and rhizosphere Pseudomonadota, consistent with the McRose-Newman model of phenazine-mediated Fe(III)-oxyhydroxide dissolution as a joint P and trace-metal mobilization strategy.
+This is a soil/plant-focused subset analysis of the pan-bacterial macro-micro nutrient co-cycling study (v3, 27,682 species). Restricting to 4,540 soil/rhizosphere and plant-associated GTDB species pangenomes from `kbase_ke_pangenome`, we find stronger P-acquisition × metal-handling co-occurrence (phi=0.129, OR=3.9, p=4.4×10⁻¹⁴) compared to the pan-bacterial baseline (phi=0.110, OR=2.3). The signal survives phylogenetic correction (phylo log-OR=0.938, p=2.1×10⁻⁵) though is attenuated by 41%, indicating substantial phylogenetic confounding in the soil+plant subset. All 27 phenazine operon carriers in the subset encode both P-acquisition and metal-handling genes. The coupling is ecological, not genomic: P-M gene pairs are farther apart than expected (median 1,097 genes vs null 350, Z=120.7) and share fewer KEGG pathways than chance (Z=−31.0).
 
 ## Quick Links
 
@@ -77,7 +77,7 @@ python src/15_figure6_wang2021.py
 python src/16_kegg_pathway_comembership.py
 ```
 
-Steps 1, 7, 11, and 12 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 9–10 require an R environment with `phylolm` and `phytools` (create via `conda create -n r_phylo -c conda-forge r-base r-ape r-phytools r-phylolm --solver=classic`). All other steps run locally on CSV outputs in `data/`.
+Steps 1, 7, 11, 12, and 16 require access to the `kbase_ke_pangenome` tenant on BERDL. Steps 9–10 require an R environment with `phylolm` and `phytools` (create via `conda create -n r_phylo -c conda-forge r-base r-ape r-phytools r-phylolm --solver=classic`). All other steps run locally on CSV outputs in `data/`. Scripts 02–05, 08–10 apply a soil+plant species filter using `data/env_species_mapping.csv`; scripts 11, 12, and 16 filter after Spark collection.
 
 **Notebooks (NB01–NB07)** are inspection and display notebooks that load pre-computed CSVs from `data/`. They visualize and summarize results but do not perform primary analysis. The primary analysis code is in `src/*.py`. Re-running a notebook does not re-query BERDL — it renders cached CSV outputs.
 

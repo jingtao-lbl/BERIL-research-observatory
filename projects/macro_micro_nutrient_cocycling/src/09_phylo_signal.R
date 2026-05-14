@@ -6,7 +6,7 @@ tree_path   <- args[1]  # pruned tree (from prior run)
 trait_path  <- args[2]  # species_gene_families.csv
 tax_path    <- args[3]  # species_taxonomy.csv
 output_path <- args[4]  # output CSV
-n_subsample <- as.integer(ifelse(length(args) >= 5, args[5], 5000))
+n_subsample <- as.integer(ifelse(length(args) >= 5, args[5], 3000))
 
 set.seed(42)
 
@@ -16,6 +16,12 @@ cat(sprintf("Tree has %d tips\n", Ntip(tree)))
 
 cat("Loading trait data...\n")
 traits <- read.csv(trait_path, stringsAsFactors = FALSE)
+
+env_map <- read.csv(file.path(dirname(trait_path), "env_species_mapping.csv"), stringsAsFactors = FALSE)
+soil_plant_ids <- env_map$gtdb_species_clade_id[
+  env_map$primary_env %in% c("soil/rhizosphere", "plant-associated")]
+traits <- traits[traits$gtdb_species_clade_id %in% soil_plant_ids, ]
+cat(sprintf("v4 soil+plant filter: %d species\n", nrow(traits)))
 
 acc_from_id <- function(sid) {
   parts <- strsplit(sid, "--", fixed = TRUE)
