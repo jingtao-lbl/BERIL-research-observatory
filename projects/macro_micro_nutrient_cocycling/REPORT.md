@@ -232,6 +232,8 @@ The phytase × siderophore co-occurrence is **non-significant** (Fisher p=0.070)
 
 The central finding — P × Metal phi of 0.129 (OR=3.92) vs the pan-bacterial phi of 0.110 (OR=2.30) — supports the prediction that macro-micro nutrient coupling is strongest in environments where Fe-oxyhydroxide mineral surfaces mediate nutrient availability. However, the coupling is also more phylogenetically confounded: the uncorrected log-OR is attenuated by 41% after phylogenetic correction (1.599 → 0.938), compared to a 2% increase in the pan-bacterial analysis. This means that while the true ecological coupling IS significant (phylo p=2.1×10⁻⁵), a substantial fraction of the uncorrected soil+plant signal reflects the phylogenetic clustering of soil-adapted lineages rather than independent co-selection events.
 
+The 41% attenuation reflects the soil+plant subset's phylogenetic structure: soil-adapted lineages (Actinomycetota, Bacillota, Pseudomonadota) are phylogenetically clustered and share both P-acquisition and metal-handling genes as ancestral traits. The phylogenetic correction removes this shared-ancestry component, leaving the ecological co-selection signal — species within soil lineages that acquire P are *still* enriched for metal-handling genes beyond what their shared ancestry predicts. The higher attenuation compared to the pan-bacterial analysis (41% vs 2%) is expected because filtering to a single ecological niche concentrates phylogenetically related organisms that inherited similar gene repertoires from common soil-adapted ancestors.
+
 The coupling remains strongest for the specific mechanistic links predicted by biochemistry:
 - **phoD × feoB** strengthened by 41% after phylogenetic correction (0.361 → 0.509), the largest gain of any pair
 - **nifH × HMA** strengthened by 91% (0.208 → 0.396), suggesting that in the soil+plant subset, phylogenetic structure was actively masking the N-fixation × metal coupling
@@ -255,7 +257,7 @@ The non-significance of phytase × siderophore co-occurrence (p=0.070) in the so
 
 ### Negative associations reflect redox niche separation
 
-The pstC/S × feoB anti-correlations are the strongest individual associations in this analysis (phi up to −0.395). Their attenuation by 28–41% under phylogenetic correction indicates that some of the anti-correlation is driven by phylogenetic clustering of aerobic Pst-using lineages vs microaerobic FeoB-using lineages within the soil+plant subset. But the associations remain highly significant after correction (p<10⁻¹¹), confirming genuine ecological niche separation.
+The pstC/S × feoB anti-correlations are the strongest individual associations in this analysis (phi up to −0.395; for context, phi=0.0 indicates independence and |phi|=1.0 indicates perfect association). Their attenuation by 28–41% under phylogenetic correction indicates that some of the anti-correlation is driven by phylogenetic clustering: aerobic lineages that rely on high-affinity Pst phosphate transporters (predominantly Actinomycetota, Bacillota) are phylogenetically separated from microaerobic lineages that use the Fe²⁺-specific FeoB transporter (predominantly Pseudomonadota). The phylogenetic correction removes the shared-ancestry component of this separation, but the associations remain highly significant after correction (p<10⁻¹¹), confirming genuine ecological niche separation beyond phylogenetic structure.
 
 ## Limitations
 

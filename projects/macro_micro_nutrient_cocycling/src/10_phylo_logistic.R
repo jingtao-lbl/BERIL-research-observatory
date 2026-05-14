@@ -7,6 +7,12 @@ trait_path  <- args[2]  # species_gene_families.csv
 pairs_path  <- args[3]  # CSV defining which pairs to test (gene_x, gene_y, col_x, col_y)
 output_path <- args[4]  # output CSV
 
+stopifnot(
+  "Tree file not found"  = file.exists(tree_path),
+  "Trait file not found"  = file.exists(trait_path),
+  "Pairs file not found"  = file.exists(pairs_path)
+)
+
 cat("Loading pruned tree...\n")
 tree <- read.tree(tree_path)
 cat(sprintf("Tree has %d tips\n", Ntip(tree)))

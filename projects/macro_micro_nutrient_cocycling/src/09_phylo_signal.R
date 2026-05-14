@@ -8,6 +8,12 @@ tax_path    <- args[3]  # species_taxonomy.csv
 output_path <- args[4]  # output CSV
 n_subsample <- as.integer(ifelse(length(args) >= 5, args[5], 3000))
 
+stopifnot(
+  "Tree file not found"  = file.exists(tree_path),
+  "Trait file not found"  = file.exists(trait_path),
+  "Taxonomy file not found" = file.exists(tax_path)
+)
+
 set.seed(42)
 
 cat("Loading pruned tree...\n")
