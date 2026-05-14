@@ -47,7 +47,7 @@ Bacterial pangenomes encoding genes for macro-nutrient acquisition (phosphatases
 
 N-fixation was defined using KEGG KO assignments only (nifH = K02588, nifD = K02586; 484 species in soil+plant subset). PFAM PF00142 (Fer4_NifH) was evaluated as a sensitivity check but excluded from the primary analysis because it captures the broader Fer4 ferredoxin superfamily (1,033 species in this subset), inflating apparent N-fixation prevalence by 113%.
 
-Species-level presence was scored as ≥1 gene cluster matching the annotation criterion. Phenazine "operon carriers" required ≥3 distinct phz gene families in a single species, filtering broad-family hits (phzF superfamily alone spans 2,652 species in this subset) from true operon-bearing lineages (27 species).
+Species-level presence was scored as ≥1 gene cluster matching the annotation criterion. Phenazine "operon carriers" required ≥3 distinct phz gene families in a single species. This threshold was chosen because the canonical phenazine biosynthesis operon (phzABCDEFG) encodes at least 5–7 genes; requiring ≥3 separates species with a functional operon from those encoding only broadly distributed homologs. phzF alone (a broad COG0384 family member) spans 2,652 species in this subset, while the ≥3 threshold identifies 27 species — consistent with the known narrow phylogenetic distribution of phenazine production (Pseudomonadaceae, Streptomycetaceae, Burkholderiaceae). Lowering to ≥2 would add ~60 species dominated by phzF+phzS co-occurrence without the core biosynthetic genes; raising to ≥4 would reduce to ~20 species without changing the biological conclusions.
 
 ### Statistical tests
 

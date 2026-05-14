@@ -1,0 +1,11 @@
+Convergence check — 2026-05-14
+================================
+
+Main phylogenetic logistic regression (data/phylo/phylo_logistic.csv):
+  All 17 models converged.
+
+Wang 2021 phylogenetic logistic regression (data/phylo/phylo_logistic_wang.csv):
+  1 model did NOT converge:
+    phytase x siderophore: converged=FALSE (n_both=124, uncorrected p=0.053)
+  This is expected — weak signal (OR=1.23, Fisher p=0.070) with only 124 species
+  encoding both traits out of 4,177 tree tips.

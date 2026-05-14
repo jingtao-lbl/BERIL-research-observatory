@@ -24,6 +24,10 @@ The coupling is specific to alkaline phosphatases and high-affinity phosphate tr
 
 ## Reproduction
 
+**Notebooks (NB01–NB07)** are inspection and display notebooks that load pre-computed CSVs from `data/`. They visualize and summarize results but do not perform primary analysis. The primary analysis code is in `src/*.py` and `src/*.R`.
+
+**Quick start (no Spark access needed):** All intermediate results are pre-cached in `data/`. To explore findings without re-running Spark steps, start directly from step 2 or view notebooks NB01–NB07, which render cached CSV outputs.
+
 ```bash
 # Step 1: Extract gene families (requires on-cluster Spark access, ~15 min)
 python src/01_extract_gene_families.py
@@ -63,8 +67,10 @@ conda run -n r_phylo Rscript src/10_phylo_logistic.R \
   data/phylo/pair_definitions.csv \
   data/phylo/phylo_logistic.csv
 
-# Step 10a: Check for convergence failures
-grep "FALSE" data/phylo/phylo_logistic.csv || echo "All models converged"
+# Step 10a: Check for convergence failures (saves result to data/phylo/)
+grep "FALSE" data/phylo/phylo_logistic.csv > data/phylo/convergence_failures.txt \
+  || echo "All models converged" > data/phylo/convergence_failures.txt
+cat data/phylo/convergence_failures.txt
 
 # Step 11: Operon-distance test (requires on-cluster Spark access, ~25 min)
 python src/11_operon_distance.py
@@ -89,15 +95,13 @@ Steps 1, 7, 11, 12, and 16 require access to the `kbase_ke_pangenome` tenant on 
 
 All permutation tests and phylogenetic subsampling use a fixed random seed (42) for reproducibility. Python scripts use `np.random.seed(42)` or `np.random.default_rng(42)`; R scripts use `set.seed(42)`. Permutation p-values will differ slightly if re-run without the seed.
 
-**Notebooks (NB01–NB07)** are inspection and display notebooks that load pre-computed CSVs from `data/`. They visualize and summarize results but do not perform primary analysis. The primary analysis code is in `src/*.py`. Re-running a notebook does not re-query BERDL — it renders cached CSV outputs.
-
 ### Figures
 
 | Figure | Filename | Description |
 |--------|----------|-------------|
 | Figure 1 | `figure1_cooccurrence.png` | Multi-panel co-occurrence heatmap, core fractions, phylum-level, phenazine taxonomy |
 | Figure 2 | `forest_plot.png` | Per-phylum log-OR forest plot (22 phyla, n≥20) |
-| Figure 3 | `figure3_env_stratification.png` | Environmental stratification (v3 pan-bacterial only; not regenerated for v4) |
+| Figure 3 | `archive_v3/figure3_env_stratification.png` | Environmental stratification (v3 only; not applicable to single-environment v4 subset) |
 | Figure 4 | `figure4_phylo_correction.png` | Uncorrected vs phylo-corrected log-OR scatter |
 | Figure 5 | `figure5_operon_distance.png` | Operon-distance distribution (observed vs null) |
 | Figure 6 | `figure6_wang2021.png` | Wang 2021 per-family and per-siderophore validation |

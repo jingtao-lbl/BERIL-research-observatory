@@ -53,7 +53,10 @@ run_step 10 conda run -n r_phylo Rscript src/10_phylo_logistic.R \
     data/phylo/phylo_logistic.csv
 
 echo "━━━ Step 10a: Convergence check ━━━"
-grep "FALSE" data/phylo/phylo_logistic.csv && echo "WARNING: Some models did not converge" || echo "All models converged"
+grep "FALSE" data/phylo/phylo_logistic.csv > data/phylo/convergence_failures.txt \
+    && echo "WARNING: Some models did not converge (see data/phylo/convergence_failures.txt)" \
+    || echo "All models converged" > data/phylo/convergence_failures.txt
+cat data/phylo/convergence_failures.txt
 echo ""
 
 # Phase 5: Mechanistic tests (Spark)
